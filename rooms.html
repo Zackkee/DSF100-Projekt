@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rooms – Nordic Hotel Maldives</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="rooms-page">
+
+<nav>
+    <a href="index.html">Home</a>
+</nav>
+
+<header class="rooms-hero">
+    <h1>Our Rooms</h1>
+    <p id="selected-dates"></p>
+</header>
+
+<main class="rooms-wrapper">
+
+    <!-- SINGLE ROOM -->
+    <section class="room-showcase">
+        <img src="single.jpg" alt="Single Room">
+        <div class="room-overlay">
+            <h2>Single Room</h2>
+            <p>Perfect for solo travelers</p>
+            <span class="price">From 1000 SEK / night</span>
+            <button>Book Now</button>
+        </div>
+    </section>
+
+    <!-- DOUBLE ROOM -->
+    <section class="room-showcase">
+        <img src="double.jpg" alt="Double Room">
+        <div class="room-overlay">
+            <h2>Double Room</h2>
+            <p>Ideal for couples</p>
+            <span class="price">From 1500 SEK / night</span>
+            <button>Book Now</button>
+        </div>
+    </section>
+
+    <!-- SUITE -->
+    <section class="room-showcase">
+        <img src="suite.jpg" alt="Suite">
+        <div class="room-overlay">
+            <h2>Luxury Suite</h2>
+            <p>Sea view & premium comfort</p>
+            <span class="price">From 2500 SEK / night</span>
+            <button>Book Now</button>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const inDate = params.get("check_in_date");
+    const outDate = params.get("check_out_date");
+    const guests = params.get("antal_personer");
+
+    if (inDate && outDate && guests) {
+        document.getElementById("selected-dates").textContent =
+            `Stay ${inDate} – ${outDate} | Guests: ${guests}`;
+    }
+</script>
+
+</body>
+</html>
+

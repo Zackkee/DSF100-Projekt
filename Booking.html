@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boka rum</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <nav class="main-nav">
+        <a href="index.html">Hem</a>
+        <a href="mina_bookningar.html">Mina bokningar</a>
+    </nav>
+</header>
+
+
+<main>
+    <h1>Boka ett rum</h1>
+
+    <form id="booking-form" class="booking-form">
+        <fieldset>
+            <legend>Bokningsinformation</legend>
+
+            <div class="form-group">
+                <label for="customer_id">Kund-ID</label>
+                <input type="text" id="customer_id" name="customer_id" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="room_id">Rum-ID</label>
+                <input type="text" id="room_id" name="room_id" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="check_in_date">Incheckningsdatum</label>
+                <input type="date" id="check_in_date" name="check_in_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="check_out_date">Utcheckningsdatum</label>
+                <input type="date" id="check_out_date" name="check_out_date" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Boka nu</button>
+        </fieldset>
+    </form>
+
+    <p id="message" class="message"></p>
+</main>
+
+<footer>
+    <p>&copy; 2026 Hotellbokning</p>
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    const customer_id = params.get("customer_id");
+    const room_id = params.get("room_id");
+    const check_in_date = params.get("check_in_date");
+    const check_out_date = params.get("check_out_date");
+
+    document.getElementById("customer_id").value = customer_id ?? "";
+    document.getElementById("room_id").value = room_id ?? "";
+    document.getElementById("check_in_date").value = check_in_date ?? "";
+    document.getElementById("check_out_date").value = check_out_date ?? "";
+
+    document.getElementById("mina-bokningar-link").href =
+        `mina_bokningar.html?customer_id=${customer_id}`;
+
+    document.getElementById("booking-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const bookingData = {
+            customer_id,
+            room_id,
+            check_in_date: document.getElementById("check_in_date").value,
+            check_out_date: document.getElementById("check_out_date").value
+        };
+
+        try {
+            const response = await fetch("/api/bookRoom", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(bookingData)
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                document.getElementById("message").textContent =
+                    "Tack för din bokning! Du skickas nu till startsidan.";
+
+                setTimeout(() => {
+                    window.location.href = `index.html?customer_id=${customer_id}`;
+                }, 3000);
+            } else {
+                document.getElementById("message").textContent =
+                    "Bokning misslyckades: " + result.message;
+            }
+        } catch (error) {
+            document.getElementById("message").textContent =
+                "Ett fel uppstod. Försök igen senare.";
+        }
+    });
+</script>
+
+</body>
+</html>
