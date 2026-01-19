@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nordic Haven Hotel | Start</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="index-background">
+
+    <!-- ===== Navigation ===== -->
+    <header>
+        <nav>
+            <a href="kunder.html">Skapa konto</a>
+            <a id="bookings-link" href="Mina_bookningar.html">Mina bokningar</a>
+        </nav>
+    </header>
+
+    <!-- ===== Innehåll ===== -->
+    <main class="container">
+
+        <!-- Hero -->
+        <section>
+            <h1>Välkommen till Nordic Haven Hotel</h1>
+
+            <p>
+                Upptäck en plats där avkoppling möter elegans.
+                På <strong>Nordic Haven Hotel</strong> skapar vi minnesvärda vistelser,
+                oavsett om du reser för arbete eller nöje.
+            </p>
+        </section>
+
+        <!-- Sök rum -->
+        <section>
+            <h1>Hitta ditt perfekta rum</h1>
+
+            <form action="rooms.html" method="GET">
+                <label for="check_in_date">Ankomstdatum</label>
+                <input type="date" id="check_in_date" name="check_in_date" required>
+
+                <label for="check_out_date">Avresedatum</label>
+                <input type="date" id="check_out_date" name="check_out_date" required>
+
+                <label for="antal_personer">Antal gäster</label>
+                <input type="number" id="antal_personer" name="antal_personer" min="1" required>
+
+                <button type="submit">Visa lediga rum</button>
+            </form>
+        </section>
+
+        <!-- Om hotellet -->
+        <section>
+            <h2>Om Nordic Haven Hotel</h2>
+
+            <p>
+                Sedan mitten av 1900-talet har Nordic Haven Hotel välkomnat gäster
+                till hjärtat av Göteborg. Med fokus på personlig service och hög komfort
+                erbjuder vi en harmonisk miljö där tradition möter nutid.
+            </p>
+
+            <p>
+                Våra rum är noggrant utformade för att passa olika behov – från bekväma
+                enkelrum till rymliga sviter för längre vistelser.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer>
+        <p style="text-align:center; padding: 20px 0;">
+            &copy; 2026 Nordic Haven Hotel. Alla rättigheter förbehållna.
+        </p>
+    </footer>
+
+    <!-- ===== Script ===== -->
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const customerId = params.get("customer_id");
+
+        if (customerId) {
+            document.getElementById("bookings-link").href =
+                `Mina_bookningar.html?customer_id=${customerId}`;
+        }
+    </script>
+
+</body>
+</html>

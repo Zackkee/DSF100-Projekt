@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrera kund</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <a href="index.html">Tillbaka till start</a>
+
+    <h1>Kundregistrering</h1>
+
+    <form id="form">
+        <p>
+            Förnamn:<br>
+            <input type="text" id="fname" required>
+        </p>
+
+        <p>
+            Efternamn:<br>
+            <input type="text" id="lname" required>
+        </p>
+
+        <p>
+            Email:<br>
+            <input type="email" id="email" required>
+        </p>
+
+        <p>
+            Telefon:<br>
+            <input type="text" id="phone">
+        </p>
+
+        <button type="submit">Skicka</button>
+    </form>
+
+    <p id="msg"></p>
+
+    <script>
+        const url = new URLSearchParams(window.location.search);
+
+        const roomId = url.get("room_id");
+        const inDate = url.get("check_in_date");
+        const outDate = url.get("check_out_date");
+
+        document.getElementById("form").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const data = {
+                firstname: document.getElementById("fname").value,
+                lastname: document.getElementById("lname").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value
+            };
+
+            fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === "success") {
+                    window.location.href =
+                        "booking.html?room_id=" + roomId +
+                        "&customer_id=" + result.customer_id +
+                        "&check_in_date=" + inDate +
+                        "&check_out_date=" + outDate;
+                } else {
+                    document.getElementById("msg").innerText = result.message;
+                }
+            })
+            .catch(() => {
+                document.getElementById("msg").innerText = "Något gick fel";
+            });
+        });
+    </script>
+
+</body>
+</html>
