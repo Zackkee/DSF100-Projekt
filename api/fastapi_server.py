@@ -1,8 +1,6 @@
 #uvicorn fastapi_server:app
 # rWYRx4lEoHYbc5sA databas lösenord
-#hejsan
-#zak<ia
-# Hej hej
+
 
 from fastapi import FastAPI
 
