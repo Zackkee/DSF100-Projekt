@@ -2,108 +2,93 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boka rum</title>
+    <title>Bokning – Nordic Haven Hotel</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-    <nav class="main-nav">
-        <a href="index.html">Hem</a>
-        <a href="mina_bookningar.html">Mina bokningar</a>
-    </nav>
-</header>
 
+<h1>Bekräfta bokning</h1>
 
-<main>
-    <h1>Boka ett rum</h1>
+<div id="rooms"></div>
+<p id="price"></p>
 
-    <form id="booking-form" class="booking-form">
-        <fieldset>
-            <legend>Bokningsinformation</legend>
+<form id="booking-form">
+    <label>Kund-ID</label>
+    <input type="text" id="customer_id" readonly>
 
-            <div class="form-group">
-                <label for="customer_id">Kund-ID</label>
-                <input type="text" id="customer_id" name="customer_id" readonly>
-            </div>
+    <button type="submit">Bekräfta bokning</button>
+</form>
 
-            <div class="form-group">
-                <label for="room_id">Rum-ID</label>
-                <input type="text" id="room_id" name="room_id" readonly>
-            </div>
-
-            <div class="form-group">
-                <label for="check_in_date">Incheckningsdatum</label>
-                <input type="date" id="check_in_date" name="check_in_date" required>
-            </div>
-
-            <div class="form-group">
-                <label for="check_out_date">Utcheckningsdatum</label>
-                <input type="date" id="check_out_date" name="check_out_date" required>
-            </div>
-
-            <button type="submit" class="btn-primary">Boka nu</button>
-        </fieldset>
-    </form>
-
-    <p id="message" class="message"></p>
-</main>
-
-<footer>
-    <p>&copy; 2026 Hotellbokning</p>
-</footer>
+<p id="message"></p>
 
 <script>
-    const params = new URLSearchParams(window.location.search);
+// ===== Hämta kund-id från URL =====
+const params = new URLSearchParams(window.location.search);
+const customerId = params.get("customer_id");
+document.getElementById("customer_id").value = customerId;
 
-    const customer_id = params.get("customer_id");
-    const room_id = params.get("room_id");
-    const check_in_date = params.get("check_in_date");
-    const check_out_date = params.get("check_out_date");
-
-    document.getElementById("customer_id").value = customer_id ?? "";
-    document.getElementById("room_id").value = room_id ?? "";
-    document.getElementById("check_in_date").value = check_in_date ?? "";
-    document.getElementById("check_out_date").value = check_out_date ?? "";
-
-    document.getElementById("mina-bokningar-link").href =
-        `mina_bokningar.html?customer_id=${customer_id}`;
-
-    document.getElementById("booking-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const bookingData = {
-            customer_id,
-            room_id,
-            check_in_date: document.getElementById("check_in_date").value,
-            check_out_date: document.getElementById("check_out_date").value
-        };
-
-        try {
-            const response = await fetch("/api/bookRoom", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bookingData)
-            });
-
-            const result = await response.json();
-
-            if (result.status === "success") {
-                document.getElementById("message").textContent =
-                    "Tack för din bokning! Du skickas nu till startsidan.";
-
-                setTimeout(() => {
-                    window.location.href = `index.html?customer_id=${customer_id}`;
-                }, 3000);
-            } else {
-                document.getElementById("message").textContent =
-                    "Bokning misslyckades: " + result.message;
-            }
-        } catch (error) {
-            document.getElementById("message").textContent =
-                "Ett fel uppstod. Försök igen senare.";
+// ===== Hämta bokningsinfo från backend =====
+fetch("/api/getBookingSummary")
+    .then(res => res.json())
+    .then(data => {
+        if (data.status !== "success") {
+            document.getElementById("message").innerText =
+                "❌ Ingen aktiv bokning hittades.";
+            document.getElementById("message").className = "error";
+            return;
         }
+
+        // Visa rum
+        document.getElementById("rooms").innerHTML =
+            "<h3>Valda rum</h3>" +
+            data.rooms.map(r =>
+                `${r.name} – ${r.price} SEK / natt`
+            ).join("<br>");
+
+        // Visa pris (redan beräknat av backend)
+        document.getElementById("price").innerText =
+            `Totalpris: ${data.total_price} SEK
+Rabatt: ${data.discount * 100} %
+Att betala: ${data.final_price} SEK`;
+    })
+    .catch(() => {
+        document.getElementById("message").innerText =
+            "❌ Kunde inte hämta bokningsinformation.";
+        document.getElementById("message").className = "error";
     });
+
+// ===== Bekräfta bokning =====
+document.getElementById("booking-form").addEventListener("submit", e => {
+    e.preventDefault();
+
+    fetch("/api/bookRoom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer_id: customerId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msg = document.getElementById("message");
+
+        if (data.status === "success") {
+            msg.innerText = "✅ Bokningen är bekräftad! Tack för din bokning.";
+            msg.className = "success";
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 3000);
+        } else {
+            msg.innerText = "❌ Bokningen misslyckades: " + data.message;
+            msg.className = "error";
+        }
+    })
+    .catch(() => {
+        const msg = document.getElementById("message");
+        msg.innerText = "❌ Ett tekniskt fel uppstod.";
+        msg.className = "error";
+    });
+});
 </script>
+
 </body>
 </html>

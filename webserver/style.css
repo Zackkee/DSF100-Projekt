@@ -30,7 +30,7 @@ body {
 }
 
 /* ==================================================
-   STARTSIDA – BAKGRUND (UTAN OVERLAY)
+   STARTSIDA – BAKGRUND
 ================================================== */
 .index-background {
     background-image: url('1.jpg');
@@ -38,10 +38,6 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-}
-
-.index-background::before {
-    display: none;
 }
 
 /* ===== Kontrast på text ===== */
@@ -79,17 +75,16 @@ h1 {
     margin: 30px 0;
     font-size: 50px;
     color: #0ea5e9;
-    letter-spacing: 0.5px;
 }
 
-/* ===== Formulär ===== */
+/* ===== Formulär (allmän) ===== */
 form {
     max-width: 500px;
     margin: 0 auto 30px;
     padding: 20px;
     border-radius: 14px;
     background-color: rgba(255, 255, 255, 0.4);
-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
 }
 
@@ -110,6 +105,14 @@ form button {
     border-radius: 8px;
     border: 1px solid #bae6fd;
     font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+form input:focus,
+form select:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 8px rgba(14,165,233,0.5);
+    outline: none;
 }
 
 /* ===== Knapp ===== */
@@ -119,7 +122,7 @@ form button {
     border: none;
     cursor: pointer;
     font-weight: bold;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 form button:hover {
@@ -133,7 +136,6 @@ table {
     margin: 0 auto 30px;
     border-collapse: collapse;
     background-color: #ffffff;
-    box-shadow: 0 0 15px rgba(0,0,0,0.08);
 }
 
 table th,
@@ -146,49 +148,41 @@ table td {
 table th {
     background-color: #0ea5e9;
     color: #ffffff;
-    font-weight: bold;
 }
 
-/* ===== Meddelanden ===== */
-#message {
+/* ===== Meddelanden (BOKNING och KUND) ===== */
+#message,
+#msg {
     text-align: center;
     font-size: 18px;
-    color: #dc2626;
     margin-top: 20px;
-}
-
-/* ===== Välkomsttext ===== */
-#welcome {
-    text-align: center;
-    font-size: 20px;
-    margin: 20px auto;
-    max-width: 800px;
+    font-weight: bold;
     padding: 15px;
-    border-radius: 10px;
-    color: #0369a1;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* ===== Hotell-info ===== */
-.hotel-info {
-    padding: 20px;
-    margin: 30px auto;
-    max-width: 900px;
-    text-align: center;
+#message.success,
+#msg.success {
+    background-color: #d1fae5;
+    color: #15803d;
+    border: 1px solid #15803d;
 }
 
-.hotel-info h2,
-.hotel-info p {
-    color: #ffffff;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+#message.error,
+#msg.error {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #dc2626;
 }
 
 /* ==================================================
-   ROOMS PAGE – IMAGES & CARDS
+   ROOMS PAGE
 ================================================== */
-
-/* ============================
-   ROOMS – MODERN DESIGN
-============================ */
 
 .rooms-hero {
     background: linear-gradient(
@@ -200,17 +194,6 @@ table th {
     color: #ffffff;
 }
 
-.rooms-hero h1 {
-    font-size: 48px;
-    margin-bottom: 10px;
-}
-
-.rooms-hero p {
-    font-size: 18px;
-    opacity: 0.9;
-}
-
-/* Layout */
 .rooms-wrapper {
     max-width: 1200px;
     margin: 60px auto;
@@ -219,29 +202,26 @@ table th {
     gap: 50px;
 }
 
-/* Room block */
 .room-showcase {
     position: relative;
     border-radius: 24px;
     overflow: hidden;
     height: 420px;
     box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* Image */
+.room-showcase:hover {
+    transform: scale(1.05);
+    box-shadow: 0 40px 70px rgba(0,0,0,0.35);
+}
+
 .room-showcase img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s ease;
 }
 
-/* Hover zoom */
-.room-showcase:hover img {
-    transform: scale(1.08);
-}
-
-/* Overlay */
 .room-overlay {
     position: absolute;
     inset: 0;
@@ -257,47 +237,108 @@ table th {
     color: #ffffff;
 }
 
-.room-overlay h2 {
-    font-size: 32px;
-    margin-bottom: 5px;
-}
-
-.room-overlay p {
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-
 .room-overlay .price {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 15px;
     color: #2dd4bf;
 }
 
-/* Button */
-.room-overlay button {
-    width: fit-content;
-    padding: 12px 26px;
+/* ==================================================
+   MULTI ROOM BOOKING
+================================================== */
+
+#rooms {
+    margin: 25px auto;
+    max-width: 500px;
+    padding: 15px;
+    background: #f0f9ff;
+    border-radius: 10px;
+}
+
+#price {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #ecfeff;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0369a1;
+    white-space: pre-line;
+    text-align: center;
+}
+
+/* ==================================================
+   KUNDREGISTERING – NY DESIGN
+================================================== */
+.form-container {
+    max-width: 500px;
+    margin: 40px auto 60px;
+    padding: 30px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+.form-container h1 {
+    margin-bottom: 30px;
+    font-size: 40px;
+    color: #0ea5e9;
+}
+
+.form-container form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #0284c7;
+    text-align: left;
+}
+
+.form-container form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #bae6fd;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-container form input:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 8px rgba(14,165,233,0.5);
+    outline: none;
+}
+
+.form-container form button {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: bold;
     border-radius: 30px;
     border: none;
     background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
+    color: #ffffff;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.room-overlay button:hover {
-    opacity: 0.9;
+.form-container form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* Mobile */
+/* ===== Mobile ===== */
 @media (max-width: 768px) {
+    h1 {
+        font-size: 36px;
+    }
+
     .room-showcase {
         height: 320px;
     }
-
-    .room-overlay h2 {
-        font-size: 24px;
-    }
 }
+
+
+

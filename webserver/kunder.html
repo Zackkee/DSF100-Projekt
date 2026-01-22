@@ -2,83 +2,77 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Registrera kund</title>
+    <title>Registrera kund – Nordic Haven Hotel</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
 
-    <a href="index.html">Tillbaka till start</a>
+<nav>
+    <a href="index.html">← Tillbaka till start</a>
+</nav>
 
-    <h1>Kundregistrering</h1>
+<h1>Kundregistrering</h1>
 
+<div class="form-container">
     <form id="form">
-        <p>
-            Förnamn:<br>
-            <input type="text" id="fname" required>
-        </p>
+        <label for="fname">Förnamn</label>
+        <input type="text" id="fname" required placeholder="Skriv ditt förnamn">
 
-        <p>
-            Efternamn:<br>
-            <input type="text" id="lname" required>
-        </p>
+        <label for="lname">Efternamn</label>
+        <input type="text" id="lname" required placeholder="Skriv ditt efternamn">
 
-        <p>
-            Email:<br>
-            <input type="email" id="email" required>
-        </p>
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="exempel@mail.com">
 
-        <p>
-            Telefon:<br>
-            <input type="text" id="phone">
-        </p>
+        <label for="phone">Telefon</label>
+        <input type="text" id="phone" placeholder="070-1234567">
 
-        <button type="submit">Skicka</button>
+        <button type="submit">Registrera</button>
     </form>
 
     <p id="msg"></p>
+</div>
 
-    <script>
-        const url = new URLSearchParams(window.location.search);
+<script>
+document.getElementById("form").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-        const roomId = url.get("room_id");
-        const inDate = url.get("check_in_date");
-        const outDate = url.get("check_out_date");
+    const data = {
+        firstname: document.getElementById("fname").value,
+        lastname: document.getElementById("lname").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value
+    };
 
-        document.getElementById("form").addEventListener("submit", function(e) {
-            e.preventDefault();
+    fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+        const msgEl = document.getElementById("msg");
 
-            const data = {
-                firstname: document.getElementById("fname").value,
-                lastname: document.getElementById("lname").value,
-                email: document.getElementById("email").value,
-                phone: document.getElementById("phone").value
-            };
+        if (result.status === "success") {
+            msgEl.innerText = "✅ Registreringen lyckades! Du skickas vidare...";
+            msgEl.className = "success";
 
-            fetch("/api/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === "success") {
-                    window.location.href =
-                        "booking.html?room_id=" + roomId +
-                        "&customer_id=" + result.customer_id +
-                        "&check_in_date=" + inDate +
-                        "&check_out_date=" + outDate;
-                } else {
-                    document.getElementById("msg").innerText = result.message;
-                }
-            })
-            .catch(() => {
-                document.getElementById("msg").innerText = "Något gick fel";
-            });
-        });
-    </script>
+            setTimeout(() => {
+                window.location.href =
+                    `booking.html?customer_id=${result.customer_id}`;
+            }, 2000);
+        } else {
+            msgEl.innerText = "❌ " + result.message;
+            msgEl.className = "error";
+        }
+    })
+    .catch(() => {
+        const msgEl = document.getElementById("msg");
+        msgEl.innerText = "❌ Något gick fel, försök igen.";
+        msgEl.className = "error";
+    });
+});
+</script>
 
 </body>
 </html>

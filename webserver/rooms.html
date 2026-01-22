@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Rooms – Nordic Hotel Maldives</title>
+    <title>Rooms – Nordic Haven Hotel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -10,12 +10,11 @@
 <body class="rooms-page">
 
 <nav>
-    <a href="index.html">Home</a>
+    <a href="index.html">Hem</a>
 </nav>
 
 <header class="rooms-hero">
-    <h1>Our Rooms</h1>
-    <p id="selected-dates"></p>
+    <h1>Våra rum</h1>
 </header>
 
 <main class="rooms-wrapper">
@@ -25,9 +24,9 @@
         <img src="single.jpg" alt="Single Room">
         <div class="room-overlay">
             <h2>Single Room</h2>
-            <p>Perfect for solo travelers</p>
-            <span class="price">From 1000 SEK / night</span>
-            <button>Book Now</button>
+            <p>Perfekt för ensamresenärer</p>
+            <span class="price">1000 SEK / natt</span>
+            <button onclick="addRoom(1)">Lägg till rum</button>
         </div>
     </section>
 
@@ -36,9 +35,9 @@
         <img src="double.jpg" alt="Double Room">
         <div class="room-overlay">
             <h2>Double Room</h2>
-            <p>Ideal for couples</p>
-            <span class="price">From 1500 SEK / night</span>
-            <button>Book Now</button>
+            <p>Perfekt för par</p>
+            <span class="price">1500 SEK / natt</span>
+            <button onclick="addRoom(2)">Lägg till rum</button>
         </div>
     </section>
 
@@ -47,26 +46,73 @@
         <img src="suite.jpg" alt="Suite">
         <div class="room-overlay">
             <h2>Luxury Suite</h2>
-            <p>Sea view & premium comfort</p>
-            <span class="price">From 2500 SEK / night</span>
-            <button>Book Now</button>
+            <p>Havutsikt & premiumkomfort</p>
+            <span class="price">2500 SEK / natt</span>
+            <button onclick="addRoom(3)">Lägg till rum</button>
         </div>
     </section>
 
 </main>
 
-<script>
-    const params = new URLSearchParams(window.location.search);
-    const inDate = params.get("check_in_date");
-    const outDate = params.get("check_out_date");
-    const guests = params.get("antal_personer");
+<!-- BOKA NU -->
+<div style="text-align:center; margin: 40px 0;">
+    <button onclick="goToRegister()" style="
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 30px;
+        border: none;
+        background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
+        color: white;
+        cursor: pointer;">
+        Boka nu
+    </button>
+</div>
 
-    if (inDate && outDate && guests) {
-        document.getElementById("selected-dates").textContent =
-            `Stay ${inDate} – ${outDate} | Guests: ${guests}`;
-    }
+<p id="room-message" style="text-align:center; font-weight:bold; margin-top:20px;"></p>
+
+<script>
+// Lägg till rum via backend
+function addRoom(roomId) {
+    fetch("/api/selectRoom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room_id: roomId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msg = document.getElementById("room-message");
+
+        if (data.status === "success") {
+            msg.innerText = "✅ Rummet har lagts till i din bokning";
+            msg.style.color = "green";
+        } else {
+            msg.innerText = "❌ " + data.message;
+            msg.style.color = "red";
+        }
+    })
+    .catch(() => {
+        const msg = document.getElementById("room-message");
+        msg.innerText = "❌ Kunde inte lägga till rummet";
+        msg.style.color = "red";
+    });
+}
+
+// Gå till kundregistrering
+function goToRegister() {
+    fetch("/api/hasSelectedRooms")
+        .then(res => res.json())
+        .then(data => {
+            if (data.hasRooms) {
+                window.location.href = "kunder.html";
+            } else {
+                const msg = document.getElementById("room-message");
+                msg.innerText = "⚠️ Välj minst ett rum innan du fortsätter";
+                msg.style.color = "orange";
+            }
+        });
+}
 </script>
 
 </body>
 </html>
-
