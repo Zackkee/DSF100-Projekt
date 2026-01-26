@@ -1,5 +1,5 @@
 #uvicorn fastapi_server:app
-# rWYRx4lEoHYbc5sA databas lösenord
+# rEgdtkQLFPm58iYW databas lösenord
 
 
 from fastapi import FastAPI
