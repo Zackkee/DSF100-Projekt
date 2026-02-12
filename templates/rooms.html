@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>Rooms – Nordic Haven Hotel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body class="rooms-page">
 
 <nav>
-    <a href="index.html">Hem</a>
+    <a href="/">Hem</a>
 </nav>
 
 <header class="rooms-hero">
@@ -21,7 +21,7 @@
 
     <!-- SINGLE ROOM -->
     <section class="room-showcase">
-        <img src="single.jpg" alt="Single Room">
+        <img src="/static/single.jpg" alt="Single Room">
         <div class="room-overlay">
             <h2>Single Room</h2>
             <p>Perfekt för ensamresenärer</p>
@@ -32,7 +32,7 @@
 
     <!-- DOUBLE ROOM -->
     <section class="room-showcase">
-        <img src="double.jpg" alt="Double Room">
+        <img src="/static/double.jpg" alt="Double Room">
         <div class="room-overlay">
             <h2>Double Room</h2>
             <p>Perfekt för par</p>
@@ -43,7 +43,7 @@
 
     <!-- SUITE -->
     <section class="room-showcase">
-        <img src="suite.jpg" alt="Suite">
+        <img src="/static/suite.jpg" alt="Suite">
         <div class="room-overlay">
             <h2>Luxury Suite</h2>
             <p>Havutsikt & premiumkomfort</p>
