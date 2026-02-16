@@ -46,26 +46,50 @@ def rooms():
 def kunder():
     return render_template('kunder.html')
 
-@app.route('/api/selectRoom', methods=['POST'])
+@app.route('/api/selectRoom', methods=['POST']) #skapar varukorg med rum
 def select_room():
     data = request.get_json()
     room_id = data.get('room_id')
     if 'basket' not in session:
         session['basket'] = []
 
-    varukorg = session['basket']
-    varukorg.append(room_id)
-    session['basket'] = varukorg
+    session['basket'].append(room_id)
+    session.modified = True
 
     return jsonify({'status': "success"})
 
-@app.route('/api/hasSelectedRooms')
+@app.route('/api/hasSelectedRooms') #kollar om det finns rum i varukorgen 
 def selected_rooms():
     if 'basket' in session and len(session['basket']) > 0:
         return jsonify({'hasRooms': True})
     
     return jsonify({'hasRooms': False})
+
+@app.route('/api/register', methods=['POST']) #kund registrering
+def register():
+    data = request.get_json()
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
+    email = data.get('email')
+    phone = data.get('phone')
+
+    conn = database_connection()
+    cursor = conn.cursor()
+
+    sql = 'INSERT INTO kunder (firstname, lastname, email, phone) VALUES (%s, %s, %s, %s)'
+    values = (firstname, lastname, email, phone)
+
+    cursor.execute(sql, values)
     
+    conn.commit()
+
+
+    customer_id = cursor.lastrowid
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({'status': 'success', 'customer_id': customer_id})
 
 if __name__ == "__main__":
     app.run(debug=True)
