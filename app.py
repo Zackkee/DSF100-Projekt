@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import mysql.connector
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 def database_connection():
     return mysql.connector.connect(
@@ -40,6 +41,21 @@ def booking():
 @app.route('/rooms.html')
 def rooms():
     return render_template('rooms.html')
+
+@app.route('/api/selectRoom', methods=['POST'])
+def select_room():
+    data = request.get_json()
+    room_id = data.get('room_id')
+    if 'basket' not in session:
+        session['basket'] = []
+
+    varukorg = session['basket']
+    varukorg.append(room_id)
+    session['basket'] = varukorg
+
+    return jsonify({'status': "success"})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
