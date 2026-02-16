@@ -19,7 +19,7 @@ def database_connection():
 try:
     test_conn = database_connection()
     if test_conn.is_connected():
-        print("Connected")
+        print("Ansluten till databasen!")
         test_conn.close()
 except Exception as e:
     print(f"Not connected {e}")
@@ -42,6 +42,10 @@ def booking():
 def rooms():
     return render_template('rooms.html')
 
+@app.route('/kunder.html')
+def kunder():
+    return render_template('kunder.html')
+
 @app.route('/api/selectRoom', methods=['POST'])
 def select_room():
     data = request.get_json()
@@ -55,7 +59,13 @@ def select_room():
 
     return jsonify({'status': "success"})
 
-
+@app.route('/api/hasSelectedRooms')
+def selected_rooms():
+    if 'basket' in session and len(session['basket']) > 0:
+        return jsonify({'hasRooms': True})
+    
+    return jsonify({'hasRooms': False})
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
