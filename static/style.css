@@ -37,7 +37,7 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-attachment: scroll;
 }
 
 /* ===== Kontrast på text ===== */
@@ -199,6 +199,7 @@ table th {
     margin: 60px auto;
     padding: 0 20px;
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 50px;
 }
 
@@ -329,16 +330,36 @@ table th {
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* ===== Mobile ===== */
-@media (max-width: 768px) {
+
+/* ===== Responsive för surfplatta och mobil ===== */
+
+/* Mobil – standard */
+h1 {
+    font-size: 28px;
+}
+
+.room-showcase {
+    height: 250px;
+}
+
+/* Surfplatta */
+@media (min-width: 577px) and (max-width: 992px) {
     h1 {
-        font-size: 36px;
+        font-size: 40px;
     }
 
     .room-showcase {
-        height: 320px;
+        height: 350px;
     }
 }
 
+/* Desktop */
+@media (min-width: 993px) {
+    h1 {
+        font-size: 50px;
+    }
 
-
+    .room-showcase {
+        height: 420px;
+    }
+}
