@@ -14,43 +14,27 @@
 </nav>
 
 <header class="rooms-hero">
-    <h1>Våra rum</h1>
+    <h1>Tillgängliga rum</h1>
 </header>
 
 <main class="rooms-wrapper">
 
-    <!-- SINGLE ROOM -->
+  {% for room in rooms %}
     <section class="room-showcase">
-        <img src="/static/single.jpg" alt="Single Room">
+        <img src="{{ url_for('static', filename=room[5]) }}" alt="{{ room[1] }}">
         <div class="room-overlay">
-            <h2>Single Room</h2>
-            <p>Perfekt för ensamresenärer</p>
-            <span class="price">1000 SEK / natt</span>
-            <button onclick="addRoom(1)">Lägg till rum</button>
+            <h2>{{ room[1] }}</h2>
+            <p>{{ room[2] }}</p>
+            <span class="price">{{ room[4] }} SEK / natt</span>
+            <button onclick="addRoom('{{ room[0] }}')">Lägg till rum</button>
         </div>
     </section>
-
-    <!-- DOUBLE ROOM -->
-    <section class="room-showcase">
-        <img src="/static/double.jpg" alt="Double Room">
-        <div class="room-overlay">
-            <h2>Double Room</h2>
-            <p>Perfekt för par</p>
-            <span class="price">1500 SEK / natt</span>
-            <button onclick="addRoom(2)">Lägg till rum</button>
-        </div>
-    </section>
-
-    <!-- SUITE -->
-    <section class="room-showcase">
-        <img src="/static/suite.jpg" alt="Suite">
-        <div class="room-overlay">
-            <h2>Luxury Suite</h2>
-            <p>Havutsikt & premiumkomfort</p>
-            <span class="price">2500 SEK / natt</span>
-            <button onclick="addRoom(3)">Lägg till rum</button>
-        </div>
-    </section>
+    {% else %}
+    <div style="text-align: center; width: 100%; color: white; margin-top: 50px;">
+        <h2>Tyvärr!</h2>
+        <p>Vi har inga lediga rum för dessa datum och det antalet gäster.</p>
+    </div>
+    {% endfor %}
 
 </main>
 

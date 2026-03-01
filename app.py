@@ -38,9 +38,46 @@ def mina_bokningar():
 def booking():
     return render_template('booking.html')
 
+
 @app.route('/rooms.html')
 def rooms():
-    return render_template('rooms.html')
+
+    if request.args.get('check_in_date'):
+        session['check_in_date'] = request.args.get('check_in_date')
+        session['check_out_date'] = request.args.get('check_out_date')
+        session['antal_personer'] = request.args.get('antal_personer')
+        session.modified = True
+
+    #Kolla om kunden har sökt med datum
+    if 'check_in_date' not in session or 'check_out_date' not in session:
+        return "Ange in- och utcheckningsdatum!"
+
+    in_date = session['check_in_date']
+    out_date = session['check_out_date']
+    guests = session['antal_personer']
+
+
+    conn = database_connection()
+    cursor = conn.cursor()
+
+    sql = """
+        SELECT * FROM rum 
+        WHERE capacity >= %s 
+        AND id NOT IN (
+            SELECT room_id FROM bokningar 
+            WHERE check_in < %s AND check_out > %s
+        )
+    """
+    
+    cursor.execute(sql, (guests, out_date, in_date))
+    lediga_rum = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    
+    return render_template('rooms.html', rooms=lediga_rum)
+
 
 @app.route('/kunder.html')
 def kunder():
