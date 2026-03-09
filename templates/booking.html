@@ -44,9 +44,15 @@ fetch("/api/getBookingSummary")
         // Visa rum
         document.getElementById("rooms").innerHTML =
             "<h3>Valda rum</h3>" +
-            data.rooms.map(r =>
-                `${r.name} – ${r.price} SEK / natt`
-            ).join("<br>");
+            data.rooms.map(r => `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <img src="/static/${r.image}" alt="${r.name}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;">
+                    <div>
+                        <h4 style="margin: 0;">${r.name}</h4>
+                        <p style="margin: 5px 0 0 0;">${r.price} SEK / natt</p>
+                    </div>
+                </div>
+            `).join("");
 
         // Visa pris (redan beräknat av backend)
         document.getElementById("price").innerText =

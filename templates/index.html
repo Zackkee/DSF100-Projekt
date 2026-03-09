@@ -77,11 +77,11 @@
     <!-- ===== Script ===== -->
     <script>
         const params = new URLSearchParams(window.location.search);
-        const customerId = params.get("customer_id");
+        const email = params.get("email");
 
-        if (customerId) {
+        if (email) {
             document.getElementById("bookings-link").href =
-                `Mina_bookningar.html?customer_id=${customerId}`;
+                `Mina_bookningar.html?email=${email}`;
         }
     </script>
 
