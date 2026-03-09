@@ -25,12 +25,11 @@
 <p id="message"></p>
 
 <script>
-// ===== Hämta kund-id från URL =====
 const params = new URLSearchParams(window.location.search);
 const customerId = params.get("customer_id");
 document.getElementById("customer_id").value = customerId;
 
-// ===== Hämta bokningsinfo från backend =====
+//Hämta bokningsinfo från backend
 fetch("/api/getBookingSummary")
     .then(res => res.json())
     .then(data => {
@@ -54,11 +53,8 @@ fetch("/api/getBookingSummary")
                 </div>
             `).join("");
 
-        // Visa pris (redan beräknat av backend)
         document.getElementById("price").innerText =
-            `Totalpris: ${data.total_price} SEK
-Rabatt: ${data.discount * 100} %
-Att betala: ${data.final_price} SEK`;
+            `Totalpris: ${data.total_price} SEK`;
     })
     .catch(() => {
         document.getElementById("message").innerText =
@@ -66,7 +62,7 @@ Att betala: ${data.final_price} SEK`;
         document.getElementById("message").className = "error";
     });
 
-// ===== Bekräfta bokning =====
+//Bekräfta bokning
 document.getElementById("booking-form").addEventListener("submit", e => {
     e.preventDefault();
 

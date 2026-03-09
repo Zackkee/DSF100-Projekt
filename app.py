@@ -237,10 +237,9 @@ def get_booking_summary():
         conn = database_connection()
         cursor = conn.cursor()
 
-        # Skapa en lista med "%s" för att matcha antalet rum i varukorgen
-        placeholders = ', '.join(['%s'] * len(session['basket']))
+        rooms_in_basket = ', '.join(['%s'] * len(session['basket']))
         
-        sql = f"SELECT id, room_name, price, image FROM rum WHERE id IN ({placeholders})"
+        sql = f"SELECT id, room_name, price, image FROM rum WHERE id IN ({rooms_in_basket})"
         cursor.execute(sql, tuple(session['basket']))
         rum_data = cursor.fetchall()
         
@@ -259,17 +258,10 @@ def get_booking_summary():
             })
             total_price += (room_price * nights)
 
-        # Om du vill ha ett rabattsystem senare kan du ändra detta (t.ex. 0.10 för 10%)
-        discount = 0.0 
-        final_price = total_price * (1 - discount)
-
-        # 4. Skicka tillbaka exakt det format som ditt JavaScript förväntar sig
         return jsonify({
             'status': 'success',
             'rooms': rooms_list,
             'total_price': total_price,
-            'discount': discount,
-            'final_price': final_price
         })
 
     except Exception as e:
