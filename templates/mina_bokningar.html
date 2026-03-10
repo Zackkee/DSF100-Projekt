@@ -14,13 +14,13 @@
 
     <h1>Mina bokningar</h1>
 
-    <form id="idForm" class="card">
-        <label>
-            Kund-ID
-            <input type="number" id="custId" required>
-        </label>
-        <button type="submit">Visa bokningar</button>
-    </form>
+<form id="idForm" class="card">
+    <label>
+        Email
+        <input type="email" id="email" name="email" required>
+    </label>
+    <button type="submit">Visa bokningar</button>
+</form>
 
     <p id="info" class="info"></p>
 
@@ -30,8 +30,8 @@
                 <th>Bokning</th>
                 <th>Rum</th>
                 <th>Typ</th>
-                <th>In</th>
-                <th>Ut</th>
+                <th>Incheckning</th>
+                <th>Utcheckning</th>
                 <th></th>
             </tr>
         </thead>
@@ -41,16 +41,16 @@
 </div>
 
 <script>
-let savedCustomerId = null;
+let savedEmail = null;
 
 document.getElementById("idForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    savedCustomerId = document.getElementById("custId").value;
-    getBookings(savedCustomerId);
+    savedEmail = document.getElementById("email").value;
+    getBookings(savedEmail);
 });
 
-function getBookings(id) {
-    fetch("/api/getBookings?customer_id=" + id)
+function getBookings(email) {
+    fetch("/api/Mina_bokningar.html?email=" + email)
         .then(res => res.json())
         .then(data => {
             const table = document.getElementById("table");
@@ -64,9 +64,9 @@ function getBookings(id) {
                     tr.innerHTML =
                         `<td>${b.booking_id}</td>
                          <td>${b.room_id}</td>
-                         <td>${b.type_room}</td>
-                         <td>${b.check_in_date}</td>
-                         <td>${b.check_out_date}</td>
+                         <td>${b.room_name}</td>
+                         <td>${b.check_in}</td>
+                         <td>${b.check_out}</td>
                          <td>
                             <button class="cancel"
                               onclick="removeBooking(${b.booking_id}, ${b.room_id})">
@@ -105,7 +105,7 @@ function removeBooking(bookingId, roomId) {
     .then(res => res.json())
     .then(data => {
         alert(data.message);
-        getBookings(savedCustomerId);
+        getBookings(savedEmail);
     })
     .catch(() => {
         alert("Fel vid avbokning");
