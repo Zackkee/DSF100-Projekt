@@ -94,7 +94,7 @@ def select_room():
 
     return jsonify({'status': "success"})
 
-@app.route('/api/hasSelectedRooms') #kollar om det finns rum i varukorgen 
+@app.route('/api/hasSelectedRooms') #checkar varukorg
 def selected_rooms():
     if 'basket' in session and len(session['basket']) > 0:
         return jsonify({'hasRooms': True})
@@ -179,18 +179,26 @@ def book_room():
     data = request.get_json()
     customer_id = data.get('customer_id')
 
-    # Hämta datumen från sessionen
+    # sparar datum
     check_in = session.get('check_in_date')
     check_out = session.get('check_out_date')
-
-    if not check_in or not check_out:
-        return jsonify({'status': 'error', 'message': 'Datumen saknas.'})
 
     try:
         conn = database_connection()
         cursor = conn.cursor()
 
         for room_id in session['basket']:
+
+            #kollar databas på valda rum så att de inte är bokade
+            sql = """SELECT room_id FROM bokningar 
+                WHERE check_in < %s AND check_out > %s"""
+            
+            cursor.execute(sql, (check_out, check_in))
+            already_booked_room = cursor.fetchone()
+
+            if already_booked_room:
+                return jsonify({'status': 'error', 'message': 'Ett av rummen är tyävrr redan bokade'})
+
             sql = """
                 INSERT INTO bokningar (room_id, customer_id, check_in, check_out) 
                 VALUES (%s, %s, %s, %s)
@@ -212,20 +220,20 @@ def book_room():
 
 @app.route('/api/getBookingSummary', methods=['GET'])
 def get_booking_summary():
-    # 1. Kolla om det finns rum i varukorgen
+    #Kolla om det finns rum i varukorgen
     if 'basket' not in session or len(session['basket']) == 0:
         return jsonify({'status': 'error', 'message': 'Varukorgen är tom.'})
 
-    # 2. Räkna ut antal nätter
+    
     check_in_str = session.get('check_in_date')
     check_out_str = session.get('check_out_date')
     
     if check_in_str and check_out_str:
         try:
-            in_date = datetime.strptime(check_in_str, '%Y-%m-%d')
-            out_date = datetime.strptime(check_out_str, '%Y-%m-%d')
-            nights = (out_date - in_date).days
-            if nights <= 0: nights = 1
+            check_in_date = datetime.strptime(check_in_str, '%Y-%m-%d')
+            check_out_date = datetime.strptime(check_out_str, '%Y-%m-%d')
+            nights_count = (check_out_date - check_in_date).days
+            if nights_count <= 0: nights_count = 1
         except ValueError:
             pass
 
@@ -233,11 +241,12 @@ def get_booking_summary():
         conn = database_connection()
         cursor = conn.cursor()
 
+        #räknar rum till sql förfrågan
         rooms_in_basket = ', '.join(['%s'] * len(session['basket']))
         
         sql = f"SELECT id, room_name, price, image FROM rum WHERE id IN ({rooms_in_basket})"
         cursor.execute(sql, tuple(session['basket']))
-        rum_data = cursor.fetchall()
+        rum_data = cursor.fetchall() #sparar datan i rum_data
         
         cursor.close()
         conn.close()
@@ -252,13 +261,9 @@ def get_booking_summary():
                 'price': room_price,
                 'image': r[3]      
             })
-            total_price += (room_price * nights)
+            total_price += (room_price * nights_count)
 
-        return jsonify({
-            'status': 'success',
-            'rooms': rooms_list,
-            'total_price': total_price,
-        })
+        return jsonify({'status': 'success','rooms': rooms_list,'total_price': total_price,})
 
     except Exception as e:
         print(f"Något gick fel: {e}")
