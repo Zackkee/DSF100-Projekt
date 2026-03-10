@@ -179,10 +179,6 @@ def book_room():
     data = request.get_json()
     customer_id = data.get('customer_id')
 
-    # Kolla så att det faktiskt finns något i varukorgen
-    if 'basket' not in session or len(session['basket']) == 0:
-        return jsonify({'status': 'error', 'message': 'Varukorgen är tom.'})
-
     # Hämta datumen från sessionen
     check_in = session.get('check_in_date')
     check_out = session.get('check_out_date')
@@ -265,9 +261,9 @@ def get_booking_summary():
         })
 
     except Exception as e:
-        print(f"Fel vid hämtning av summering: {e}")
+        print(f"Något gick fel: {e}")
         return jsonify({'status': 'error'})
-
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
