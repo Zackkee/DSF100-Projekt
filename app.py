@@ -270,5 +270,29 @@ def get_booking_summary():
         return jsonify({'status': 'error'})
     
 
+
+#AVBOKNING
+@app.route('/api/cancelBooking', methods=['POST'])
+def cancel_booking():
+    data = request.get_json()
+    booking_id = data.get('booking_id')
+    try:
+        conn = database_connection()
+        cursor = conn.cursor()
+
+        sql = "DELETE FROM bokningar WHERE id = %s"
+        cursor.execute(sql, (booking_id,))
+        
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+
+        return jsonify({'status': 'success', 'message': 'Bokningen har nu avbokats!'})
+
+    except Exception as e:
+        print(f"Går ej att avboka: {e}")
+        return jsonify({'status': 'error'})
+
 if __name__ == "__main__":
     app.run(debug=True)
