@@ -32,6 +32,7 @@
                 <th>Typ</th>
                 <th>Incheckning</th>
                 <th>Utcheckning</th>
+                <th>Pris</th>
                 <th></th>
             </tr>
         </thead>
@@ -67,6 +68,7 @@ function getBookings(email) {
                          <td>${b.room_name}</td>
                          <td>${b.check_in}</td>
                          <td>${b.check_out}</td>
+                        <td>${b.price} SEK</td>
                          <td>
                             <button class="cancel"
                               onclick="removeBooking(${b.booking_id}, ${b.room_id})">

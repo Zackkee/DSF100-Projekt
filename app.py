@@ -148,7 +148,8 @@ def get_bookings():
             bokningar.room_id AS id, 
             rum.room_name, 
             bokningar.check_in, 
-            bokningar.check_out
+            bokningar.check_out,
+            rum.price
         FROM bokningar
         JOIN rum ON bokningar.room_id = rum.id
         JOIN kunder ON bokningar.customer_id = kunder.kund_id
@@ -167,7 +168,8 @@ def get_bookings():
             'room_id': b[1],
             'room_name': b[2],
             'check_in': b[3].strftime('%Y-%m-%d'),
-            'check_out': b[4].strftime('%Y-%m-%d')
+            'check_out': b[4].strftime('%Y-%m-%d'),
+            'price': float(b[5])
         })
 
     return jsonify({'status': 'success','bookings': bookings_list})
@@ -191,9 +193,9 @@ def book_room():
 
             #kollar databas på valda rum så att de inte är bokade
             sql = """SELECT room_id FROM bokningar 
-                WHERE check_in < %s AND check_out > %s"""
+                WHERE room_id = %s AND check_in < %s AND check_out > %s"""
             
-            cursor.execute(sql, (check_out, check_in))
+            cursor.execute(sql, (room_id, check_out, check_in))
             already_booked_room = cursor.fetchone()
 
             if already_booked_room:
@@ -203,7 +205,7 @@ def book_room():
                 INSERT INTO bokningar (room_id, customer_id, check_in, check_out) 
                 VALUES (%s, %s, %s, %s)
             """
-            cursor.execute(sql, (room_id, customer_id, check_in, check_out))
+            cursor.execute(sql, (room_id, customer_id, check_in, check_out,))
         
         conn.commit()
         cursor.close()
@@ -241,7 +243,6 @@ def get_booking_summary():
         conn = database_connection()
         cursor = conn.cursor()
 
-        #räknar rum till sql förfrågan
         rooms_in_basket = ', '.join(['%s'] * len(session['basket']))
         
         sql = f"SELECT id, room_name, price, image FROM rum WHERE id IN ({rooms_in_basket})"
