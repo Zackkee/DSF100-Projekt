@@ -1,9 +1,47 @@
 from flask import Flask, render_template, request, jsonify, session
 import mysql.connector
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+
+SENDER_EMAIL = "nordichaven.hotel@gmail.com"
+SENDER_PASSWORD = "lxxo nwpx lhsi tmsf"
+
+
+def send_booking_email(to_email, check_in, check_out, total_price):
+    subject = "Booking Confirmation - Nordic Haven Hotel"
+
+    body = f"""
+Hello,
+
+Your booking at Nordic Haven Hotel has been confirmed ✅
+
+Check-in date: {check_in}
+Check-out date: {check_out}
+Total price: {total_price} SEK
+
+Thank you for choosing Nordic Haven Hotel.
+"""
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = to_email
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        print("Email sent successfully")
+    except Exception as e:
+        print("Email error:", e)
+
+
 translations = {
     'sv': {
         # Navigation
@@ -93,14 +131,14 @@ translations = {
         'booking_success': 'Bokningen lyckades!',
         'booking_failed': 'Bokningen misslyckades.',
         'cancel_success': 'Bokningen har avbokats!',
-        'empty_cart': 'Varukorgen är tom.'
+        'empty_cart': 'Varukorgen är tom.',
 
-        #Payment
+        # Payment
         'confirm_payment': 'Bekräfta betalning',
         'payment_text': 'Fyll i dina betalningsuppgifter för att slutföra bokningen.',
-        'pay_now': 'Betala nu'
+        'pay_now': 'Betala nu',
 
-        #thank_you
+        # Thank you
         'thank_you_title': 'Tack för din bokning!',
         'thank_you_message_1': 'Vi är så glada att du har valt Nordic Haven Hotel 🌸',
         'thank_you_message_2': 'Vi ser fram emot att välkomna dig!',
@@ -196,14 +234,14 @@ translations = {
         'booking_success': 'Booking successful!',
         'booking_failed': 'Booking failed.',
         'cancel_success': 'Booking has been canceled!',
-        'empty_cart': 'The cart is empty.'
+        'empty_cart': 'The cart is empty.',
 
-        #Payment
+        # Payment
         'confirm_payment': 'Confirm payment',
         'payment_text': 'Enter your payment details to complete your booking.',
-        'pay_now': 'Pay now'
+        'pay_now': 'Pay now',
 
-        #thank_you
+        # Thank you
         'thank_you_title': 'Thank you for your booking!',
         'thank_you_message_1': 'We are so happy you chose Nordic Haven Hotel 🌸',
         'thank_you_message_2': 'We look forward to welcoming you!',
@@ -212,15 +250,19 @@ translations = {
     }
 }
 
+
 def get_language():
     lang = session.get('language', 'sv')
     return translations.get(lang, translations['sv'])
+
+
 @app.route('/set_language/<lang>')
 def set_language(lang):
     if lang in translations:
         session['language'] = lang
         session.modified = True
     return jsonify({'status': 'success'})
+
 
 def database_connection():
     return mysql.connector.connect(
@@ -231,7 +273,7 @@ def database_connection():
         port=4000,
         ssl_ca="isrgroot1x.pem",
         ssl_verify_identity=False
-        )
+    )
 
 
 try:
@@ -243,25 +285,14 @@ except Exception as e:
     print(f"Not connected {e}")
 
 
-
 @app.route('/')
 def index():
     t = get_language()
     return render_template('index.html', t=t)
 
-@app.route('/booking.html')
-def booking():
-    t = get_language()
-    return render_template('booking.html', t=t)
-
-@app.route('/mina_bokningar.html')
-def mina_bokningar_page():
-    t = get_language()
-    return render_template('mina_bokningar.html', t=t)
 
 @app.route('/rooms.html')
 def rooms():
-    
     if request.args.get('check_in_date'):
         session['check_in_date'] = request.args.get('check_in_date')
         session['check_out_date'] = request.args.get('check_out_date')
@@ -271,16 +302,6 @@ def rooms():
     in_date = session.get('check_in_date')
     out_date = session.get('check_out_date')
     guests = session.get('antal_personer')
-
-@app.route('/payment.html')
-def payment():
-    t = get_language()
-    return render_template('payment.html', t=t)
-
-@app.route('/thank_you.html')
-def thank_you():
-    t = get_language()
-    return render_template('thank_you.html', t=t)
 
     t = get_language()
 
@@ -298,7 +319,7 @@ def thank_you():
             WHERE check_in < %s AND check_out > %s
         )
     """
-    
+
     cursor.execute(sql, (guests, out_date, in_date))
     lediga_rum = cursor.fetchall()
 
@@ -308,33 +329,59 @@ def thank_you():
     return render_template('rooms.html', rooms=lediga_rum, t=t)
 
 
-
-
 @app.route('/kunder.html')
 def kunder():
     t = get_language()
     return render_template('kunder.html', t=t)
 
-@app.route('/api/selectRoom', methods=['POST']) #skapar varukorg med rum
+
+@app.route('/booking.html')
+def booking():
+    t = get_language()
+    return render_template('booking.html', t=t)
+
+
+@app.route('/payment.html')
+def payment():
+    t = get_language()
+    return render_template('payment.html', t=t)
+
+
+@app.route('/thank_you.html')
+def thank_you():
+    t = get_language()
+    return render_template('thank_you.html', t=t)
+
+
+@app.route('/mina_bokningar.html')
+def mina_bokningar_page():
+    t = get_language()
+    return render_template('mina_bokningar.html', t=t)
+
+
+@app.route('/api/selectRoom', methods=['POST'])
 def select_room():
     data = request.get_json()
     room_id = data.get('room_id')
+
     if 'basket' not in session:
         session['basket'] = []
 
     session['basket'].append(room_id)
     session.modified = True
 
-    return jsonify({'status': "success"})
+    return jsonify({'status': 'success'})
 
-@app.route('/api/hasSelectedRooms') #checkar varukorg
+
+@app.route('/api/hasSelectedRooms')
 def selected_rooms():
     if 'basket' in session and len(session['basket']) > 0:
         return jsonify({'hasRooms': True})
-    
+
     return jsonify({'hasRooms': False})
 
-@app.route('/api/register', methods=['POST']) #kund registrering
+
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
     firstname = data.get('firstname')
@@ -347,19 +394,14 @@ def register():
 
     cursor.execute("SELECT kund_id FROM kunder WHERE email = %s", (email,))
     existing_customer = cursor.fetchone()
+
     if existing_customer:
         customer_id = existing_customer[0]
-        
-        
     else:
         sql = 'INSERT INTO kunder (firstname, lastname, email, phone) VALUES (%s, %s, %s, %s)'
         values = (firstname, lastname, email, phone)
-
         cursor.execute(sql, values)
-        
         conn.commit()
-
-
         customer_id = cursor.lastrowid
 
     cursor.close()
@@ -368,10 +410,10 @@ def register():
     return jsonify({'status': 'success', 'customer_id': customer_id})
 
 
-@app.route('/api/mina_bokningar.html', methods=['GET']) #hämtar bokningar för en kund
+@app.route('/api/mina_bokningar.html', methods=['GET'])
 def get_bookings():
     email = request.args.get('email')
-    
+
     conn = database_connection()
     cursor = conn.cursor()
 
@@ -405,16 +447,14 @@ def get_bookings():
             'price': float(b[5])
         })
 
-    return jsonify({'status': 'success','bookings': bookings_list})
+    return jsonify({'status': 'success', 'bookings': bookings_list})
 
 
-#BEKRÄFTAR BOKNINGEN OCH LÄGGER IN DEN I DATABASEN
 @app.route('/api/bookRoom', methods=['POST'])
 def book_room():
     data = request.get_json()
     customer_id = data.get('customer_id')
 
-    # sparar datum
     check_in = session.get('check_in_date')
     check_out = session.get('check_out_date')
 
@@ -423,35 +463,59 @@ def book_room():
         cursor = conn.cursor()
 
         for room_id in session['basket']:
-
-            #kollar databas på valda rum så att de inte är bokade
-            sql = """SELECT room_id FROM bokningar 
-                WHERE room_id = %s AND check_in < %s AND check_out > %s"""
-            
+            sql = """
+                SELECT room_id FROM bokningar 
+                WHERE room_id = %s AND check_in < %s AND check_out > %s
+            """
             cursor.execute(sql, (room_id, check_out, check_in))
             already_booked_room = cursor.fetchone()
 
             if already_booked_room:
-                return jsonify({'status': 'error', 'message': 'Ett av rummen är tyävrr redan bokade'})
+                cursor.close()
+                conn.close()
+                return jsonify({'status': 'error', 'message': 'Ett av rummen är tyvärr redan bokade'})
 
             sql = """
                 INSERT INTO bokningar (room_id, customer_id, check_in, check_out) 
                 VALUES (%s, %s, %s, %s)
             """
-            cursor.execute(sql, (room_id, customer_id, check_in, check_out,))
-        
+            cursor.execute(sql, (room_id, customer_id, check_in, check_out))
+
         conn.commit()
+
+        # جلب ايميل المستخدم
+        cursor.execute("SELECT email FROM kunder WHERE kund_id = %s", (customer_id,))
+        user_email = cursor.fetchone()[0]
+
+        # حساب السعر الإجمالي
+        total_price = 0
+
+        check_in_date_obj = datetime.strptime(check_in, '%Y-%m-%d')
+        check_out_date_obj = datetime.strptime(check_out, '%Y-%m-%d')
+        nights_count = (check_out_date_obj - check_in_date_obj).days
+        if nights_count <= 0:
+            nights_count = 1
+
+        for room_id in session['basket']:
+            cursor.execute("SELECT price FROM rum WHERE id = %s", (room_id,))
+            room_price = float(cursor.fetchone()[0])
+            total_price += room_price * nights_count
+
         cursor.close()
         conn.close()
+
+        # إرسال إيميل التأكيد
+        send_booking_email(user_email, check_in, check_out, total_price)
 
         session.pop('basket', None)
         session.modified = True
 
         return jsonify({'status': 'success'})
-    
+
     except Exception as e:
-        return jsonify({'status': 'error', 'message': 'Boknningen misslyckades. Försök igen senare.'})
-    
+        print("Booking error:", e)
+        return jsonify({'status': 'error', 'message': 'Bokningen misslyckades. Försök igen senare.'})
+
 
 @app.route('/api/getBookingSummary', methods=['GET'])
 def get_booking_summary():
@@ -505,20 +569,22 @@ def get_booking_summary():
     except Exception as e:
         print(f"Något gick fel: {e}")
         return jsonify({'status': 'error'})
-#AVBOKNING
+
+
 @app.route('/api/cancelBooking', methods=['POST'])
 def cancel_booking():
     data = request.get_json()
     booking_id = data.get('booking_id')
+
     try:
         conn = database_connection()
         cursor = conn.cursor()
 
         sql = "DELETE FROM bokningar WHERE id = %s"
         cursor.execute(sql, (booking_id,))
-        
+
         conn.commit()
-        
+
         cursor.close()
         conn.close()
 
@@ -527,6 +593,7 @@ def cancel_booking():
     except Exception as e:
         print(f"Går ej att avboka: {e}")
         return jsonify({'status': 'error'})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
