@@ -129,14 +129,15 @@
         .then(data => {
             const msg = document.getElementById("message");
 
-            if (data.status === "success") {
-                msg.innerText = "✅ " + uiText.bookingConfirmed;
-                msg.className = "success";
+if (data.status === "success") {
+    msg.innerText = "✅ " + uiText.bookingConfirmed;
+    msg.className = "success";
 
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 3000);
-            } else {
+    setTimeout(() => {
+        window.location.href = "/payment.html";
+    }, 1500);
+}
+             else {
                 msg.innerText = "❌ " + uiText.bookingFailed + ": " + data.message;
                 msg.className = "error";
             }

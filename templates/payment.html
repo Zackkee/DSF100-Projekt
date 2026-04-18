@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.confirm_payment }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<main class="container" style="max-width:600px; margin:50px auto; text-align:center;">
+
+    <h1>💳 {{ t.confirm_payment }}</h1>
+
+    <p>{{ t.payment_text }}</p>
+
+    <form id="payment-form">
+        <input type="text" placeholder="Card number" required style="width:100%; padding:10px; margin:10px 0;">
+        <input type="text" placeholder="MM/YY" required style="width:48%; padding:10px;">
+        <input type="text" placeholder="CVC" required style="width:48%; padding:10px;">
+        
+        <br><br>
+
+        <button type="submit" style="
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        ">
+            {{ t.pay_now }}
+        </button>
+    </form>
+
+    <p id="message"></p>
+
+</main>
+
+<script>
+document.getElementById("payment-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const msg = document.getElementById("message");
+
+    msg.innerText = "⏳ Processing payment...";
+    msg.className = "";
+
+    setTimeout(() => {
+        msg.innerText = "✅ Payment successful!";
+        msg.className = "success";
+
+        setTimeout(() => {
+            window.location.href = "/thank_you.html";
+        }, 1500);
+
+    }, 1500);
+});
+</script>
+
+</body>
+</html>

@@ -94,6 +94,18 @@ translations = {
         'booking_failed': 'Bokningen misslyckades.',
         'cancel_success': 'Bokningen har avbokats!',
         'empty_cart': 'Varukorgen är tom.'
+
+        #Payment
+        'confirm_payment': 'Bekräfta betalning',
+        'payment_text': 'Fyll i dina betalningsuppgifter för att slutföra bokningen.',
+        'pay_now': 'Betala nu'
+
+        #thank_you
+        'thank_you_title': 'Tack för din bokning!',
+        'thank_you_message_1': 'Vi är så glada att du har valt Nordic Haven Hotel 🌸',
+        'thank_you_message_2': 'Vi ser fram emot att välkomna dig!',
+        'back_home_button': 'Tillbaka till startsidan',
+        'redirect_note': 'Du skickas automatiskt tillbaka om några sekunder.'
     },
 
     'en': {
@@ -185,6 +197,18 @@ translations = {
         'booking_failed': 'Booking failed.',
         'cancel_success': 'Booking has been canceled!',
         'empty_cart': 'The cart is empty.'
+
+        #Payment
+        'confirm_payment': 'Confirm payment',
+        'payment_text': 'Enter your payment details to complete your booking.',
+        'pay_now': 'Pay now'
+
+        #thank_you
+        'thank_you_title': 'Thank you for your booking!',
+        'thank_you_message_1': 'We are so happy you chose Nordic Haven Hotel 🌸',
+        'thank_you_message_2': 'We look forward to welcoming you!',
+        'back_home_button': 'Back to home',
+        'redirect_note': 'You will be redirected in a few seconds.'
     }
 }
 
@@ -247,6 +271,16 @@ def rooms():
     in_date = session.get('check_in_date')
     out_date = session.get('check_out_date')
     guests = session.get('antal_personer')
+
+@app.route('/payment.html')
+def payment():
+    t = get_language()
+    return render_template('payment.html', t=t)
+
+@app.route('/thank_you.html')
+def thank_you():
+    t = get_language()
+    return render_template('thank_you.html', t=t)
 
     t = get_language()
 
