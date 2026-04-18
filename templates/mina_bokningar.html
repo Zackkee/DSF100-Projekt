@@ -49,7 +49,8 @@
 
     <p id="info" class="info"></p>
 
-    <table id="table" style="display:none;">
+    <h2>{{ t.upcoming_bookings }}</h2>
+    <table id="upcoming-table" style="display:none;">
         <thead>
             <tr>
                 <th>{{ t.booking_id }}</th>
@@ -61,7 +62,23 @@
                 <th>{{ t.actions }}</th>
             </tr>
         </thead>
-        <tbody id="rows"></tbody>
+        <tbody id="upcoming-rows"></tbody>
+    </table>
+
+    <h2>{{ t.past_bookings }}</h2>
+    <table id="past-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>{{ t.booking_id }}</th>
+                <th>{{ t.room_id }}</th>
+                <th>{{ t.room_type }}</th>
+                <th>{{ t.check_in }}</th>
+                <th>{{ t.check_out }}</th>
+                <th>{{ t.price }}</th>
+                <th>{{ t.status }}</th>
+            </tr>
+        </thead>
+        <tbody id="past-rows"></tbody>
     </table>
 
 </div>
@@ -72,7 +89,8 @@ const uiText = {
     bookingFetchError: "{{ t.booking_fetch_error }}",
     confirmCancel: "{{ t.confirm_cancel }}",
     cancelError: "{{ t.cancel_error }}",
-    cancelButton: "{{ t.cancel }}"
+    cancelButton: "{{ t.cancel }}",
+    completedStatus: "{{ t.completed_status }}"
 };
 
 function changeLanguage(lang) {
@@ -97,40 +115,75 @@ document.getElementById("idForm").addEventListener("submit", function(e) {
 });
 
 function getBookings(email) {
-    fetch("/api/Mina_bokningar.html?email=" + encodeURIComponent(email))
+    fetch("/api/mina_bokningar.html?email=" + encodeURIComponent(email))
         .then(res => res.json())
         .then(data => {
-            const table = document.getElementById("table");
-            const rows = document.getElementById("rows");
-            rows.innerHTML = "";
+            const upcomingTable = document.getElementById("upcoming-table");
+            const pastTable = document.getElementById("past-table");
+            const upcomingRows = document.getElementById("upcoming-rows");
+            const pastRows = document.getElementById("past-rows");
+            const info = document.getElementById("info");
+
+            upcomingRows.innerHTML = "";
+            pastRows.innerHTML = "";
+            info.innerText = "";
 
             if (data.status === "success" && data.bookings.length > 0) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let hasUpcoming = false;
+                let hasPast = false;
+
                 data.bookings.forEach(b => {
-                    const tr = document.createElement("tr");
+                    const checkOutDate = new Date(b.check_out);
 
-                    tr.innerHTML = `
-                        <td>${b.booking_id}</td>
-                        <td>${b.room_id}</td>
-                        <td>${b.room_name}</td>
-                        <td>${b.check_in}</td>
-                        <td>${b.check_out}</td>
-                        <td>${b.price} SEK</td>
-                        <td>
-                            <button class="cancel"
-                                onclick="removeBooking(${b.booking_id}, ${b.room_id})">
-                                ${uiText.cancelButton}
-                            </button>
-                        </td>
-                    `;
+                    if (checkOutDate >= today) {
+                        hasUpcoming = true;
 
-                    rows.appendChild(tr);
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${b.booking_id}</td>
+                            <td>${b.room_id}</td>
+                            <td>${b.room_name}</td>
+                            <td>${b.check_in}</td>
+                            <td>${b.check_out}</td>
+                            <td>${b.price} SEK</td>
+                            <td>
+                                <button class="cancel"
+                                    onclick="removeBooking(${b.booking_id}, ${b.room_id})">
+                                    ${uiText.cancelButton}
+                                </button>
+                            </td>
+                        `;
+                        upcomingRows.appendChild(tr);
+                    } else {
+                        hasPast = true;
+
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${b.booking_id}</td>
+                            <td>${b.room_id}</td>
+                            <td>${b.room_name}</td>
+                            <td>${b.check_in}</td>
+                            <td>${b.check_out}</td>
+                            <td>${b.price} SEK</td>
+                            <td>${uiText.completedStatus}</td>
+                        `;
+                        pastRows.appendChild(tr);
+                    }
                 });
 
-                table.style.display = "table";
-                document.getElementById("info").innerText = "";
+                upcomingTable.style.display = hasUpcoming ? "table" : "none";
+                pastTable.style.display = hasPast ? "table" : "none";
+
+                if (!hasUpcoming && !hasPast) {
+                    info.innerText = uiText.noBookingsFound;
+                }
             } else {
-                table.style.display = "none";
-                document.getElementById("info").innerText = uiText.noBookingsFound;
+                upcomingTable.style.display = "none";
+                pastTable.style.display = "none";
+                info.innerText = uiText.noBookingsFound;
             }
         })
         .catch(() => {
