@@ -473,7 +473,10 @@ def book_room():
             if already_booked_room:
                 cursor.close()
                 conn.close()
-                return jsonify({'status': 'error', 'message': 'Ett av rummen är tyvärr redan bokade'})
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Ett av rummen är tyvärr redan bokade'
+                })
 
             sql = """
                 INSERT INTO bokningar (room_id, customer_id, check_in, check_out) 
@@ -504,7 +507,6 @@ def book_room():
         cursor.close()
         conn.close()
 
-        # إرسال إيميل التأكيد
         send_booking_email(user_email, check_in, check_out, total_price)
 
         session.pop('basket', None)
@@ -514,8 +516,10 @@ def book_room():
 
     except Exception as e:
         print("Booking error:", e)
-        return jsonify({'status': 'error', 'message': 'Bokningen misslyckades. Försök igen senare.'})
-
+        return jsonify({
+            'status': 'error',
+            'message': 'Bokningen misslyckades. Försök igen senare.'
+        })
 
 @app.route('/api/getBookingSummary', methods=['GET'])
 def get_booking_summary():
