@@ -11,9 +11,30 @@
 
     <!-- ===== Navigation ===== -->
     <header>
-        <nav>
-            <a href="kunder.html">Skapa konto</a>
-            <a id="bookings-link" href="Mina_bokningar.html">Mina bokningar</a>
+        <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
+            <div>
+                <a href="/kunder.html">{{ t.create_account }}</a>
+                <a id="bookings-link" href="/mina_bokningar.html">{{ t.my_bookings }}</a>
+            </div>
+
+            <div>
+                <button onclick="changeLanguage('sv')" style="
+                    padding: 8px 14px;
+                    margin-right: 8px;
+                    border: none;
+                    border-radius: 20px;
+                    cursor: pointer;">
+                    Svenska
+                </button>
+
+                <button onclick="changeLanguage('en')" style="
+                    padding: 8px 14px;
+                    border: none;
+                    border-radius: 20px;
+                    cursor: pointer;">
+                    English
+                </button>
+            </div>
         </nav>
     </header>
 
@@ -22,47 +43,40 @@
 
         <!-- Hero -->
         <section>
-            <h1>Välkommen till Nordic Haven Hotel</h1>
+            <h1>{{ t.welcome_title }}</h1>
 
             <p>
-                Upptäck en plats där avkoppling möter elegans.
-                På <strong>Nordic Haven Hotel</strong> skapar vi minnesvärda vistelser,
-                oavsett om du reser för arbete eller nöje.
+                {{ t.welcome_text_1 }}
+                <strong>Nordic Haven Hotel</strong>
+                {{ t.welcome_text_2 }}
             </p>
         </section>
 
         <!-- Sök rum -->
         <section>
-            <h1>Hitta ditt perfekta rum</h1>
+            <h1>{{ t.find_room_title }}</h1>
 
-            <form action="rooms.html" method="GET">
-                <label for="check_in_date">Ankomstdatum</label>
+            <form action="/rooms.html" method="GET">
+                <label for="check_in_date">{{ t.check_in }}</label>
                 <input type="date" id="check_in_date" name="check_in_date" required>
 
-                <label for="check_out_date">Avresedatum</label>
+                <label for="check_out_date">{{ t.check_out }}</label>
                 <input type="date" id="check_out_date" name="check_out_date" required>
 
-                <label for="antal_personer">Antal gäster</label>
+                <label for="antal_personer">{{ t.guests }}</label>
                 <input type="number" id="antal_personer" name="antal_personer" min="1" required>
 
-                <button type="submit">Visa lediga rum</button>
+                <button type="submit">{{ t.show_available_rooms }}</button>
             </form>
         </section>
 
         <!-- Om hotellet -->
         <section>
-            <h2>Om Nordic Haven Hotel</h2>
+            <h2>{{ t.about_hotel_title }}</h2>
 
-            <p>
-                Sedan mitten av 1900-talet har Nordic Haven Hotel välkomnat gäster
-                till hjärtat av Göteborg. Med fokus på personlig service och hög komfort
-                erbjuder vi en harmonisk miljö där tradition möter nutid.
-            </p>
+            <p>{{ t.about_hotel_text_1 }}</p>
 
-            <p>
-                Våra rum är noggrant utformade för att passa olika behov – från bekväma
-                enkelrum till rymliga sviter för längre vistelser.
-            </p>
+            <p>{{ t.about_hotel_text_2 }}</p>
         </section>
 
     </main>
@@ -70,18 +84,31 @@
     <!-- ===== Footer ===== -->
     <footer>
         <p style="text-align:center; padding: 20px 0;">
-            &copy; 2026 Nordic Haven Hotel. Alla rättigheter förbehållna.
+            &copy; 2026 Nordic Haven Hotel. {{ t.footer_rights }}
         </p>
     </footer>
 
     <!-- ===== Script ===== -->
     <script>
+        function changeLanguage(lang) {
+            fetch(`/set_language/${lang}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        location.reload();
+                    }
+                })
+                .catch(() => {
+                    console.error("Language change failed");
+                });
+        }
+
         const params = new URLSearchParams(window.location.search);
         const email = params.get("email");
 
         if (email) {
             document.getElementById("bookings-link").href =
-                `Mina_bookningar.html?email=${email}`;
+                `/mina_bokningar.html?email=${email}`;
         }
     </script>
 

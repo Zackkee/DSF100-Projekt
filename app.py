@@ -4,6 +4,191 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+translations = {
+    'sv': {
+        # Navigation
+        'home': 'Hem',
+        'create_account': 'Skapa konto',
+        'my_bookings': 'Mina bokningar',
+        'back_to_home': '← Tillbaka till start',
+
+        # Index page
+        'welcome_title': 'Välkommen till Nordic Haven Hotel',
+        'welcome_text_1': 'Upptäck en plats där avkoppling möter elegans. På',
+        'welcome_text_2': 'skapar vi minnesvärda vistelser, oavsett om du reser för arbete eller nöje.',
+        'find_room_title': 'Hitta ditt perfekta rum',
+        'check_in': 'Ankomstdatum',
+        'check_out': 'Avresedatum',
+        'guests': 'Antal gäster',
+        'show_available_rooms': 'Visa lediga rum',
+
+        # About
+        'about_hotel_title': 'Om Nordic Haven Hotel',
+        'about_hotel_text_1': 'Sedan mitten av 1900-talet har Nordic Haven Hotel välkomnat gäster till hjärtat av Göteborg. Med fokus på personlig service och hög komfort erbjuder vi en harmonisk miljö där tradition möter nutid.',
+        'about_hotel_text_2': 'Våra rum är noggrant utformade för att passa olika behov – från bekväma enkelrum till rymliga sviter för längre vistelser.',
+
+        # Rooms page
+        'available_rooms': 'Tillgängliga rum',
+        'book_now': 'Boka nu',
+        'add_room': 'Lägg till rum',
+        'sorry': 'Tyvärr!',
+        'no_rooms': 'Vi har inga lediga rum för dessa datum och det antalet gäster.',
+
+        # Customer / registration
+        'customer_registration': 'Kundregistrering',
+        'first_name': 'Förnamn',
+        'last_name': 'Efternamn',
+        'email': 'E-post',
+        'phone': 'Telefonnummer',
+        'register': 'Registrera',
+        'first_name_placeholder': 'Skriv ditt förnamn',
+        'last_name_placeholder': 'Skriv ditt efternamn',
+        'email_placeholder': 'exempel@mail.com',
+        'phone_placeholder': '070-1234567',
+        'registration_success': 'Registreringen lyckades!',
+        'redirecting_message': 'Du skickas vidare...',
+        'generic_error': 'Något gick fel, försök igen.',
+
+        # Booking page
+        'customer_id': 'Kund-ID',
+        'confirm_booking': 'Bekräfta bokning',
+        'booking_summary': 'Bokningsöversikt',
+        'selected_rooms': 'Valda rum',
+        'per_night': '/ natt',
+        'total_price': 'Totalt pris',
+        'no_active_booking': 'Ingen aktiv bokning hittades.',
+        'booking_info_error': 'Kunde inte hämta bokningsinformation.',
+        'booking_confirmed_message': 'Bokningen är bekräftad! Tack för din bokning.',
+        'booking_failed_message': 'Bokningen misslyckades',
+        'technical_error': 'Ett tekniskt fel uppstod.',
+
+        # My bookings page
+        'show_bookings': 'Visa bokningar',
+        'booking_id': 'Bokning',
+        'room_id': 'Rum',
+        'room_type': 'Typ',
+        'price': 'Pris',
+        'actions': 'Åtgärder',
+        'no_bookings_found': 'Inga bokningar hittades',
+        'booking_fetch_error': 'Fel vid hämtning av bokningar',
+        'confirm_cancel': 'Vill du avboka?',
+        'cancel_error': 'Fel vid avbokning',
+
+        # Actions / general
+        'cancel': 'Avboka',
+
+        # Footer
+        'footer_rights': 'Alla rättigheter förbehållna.',
+
+        # Toast / messages
+        'choose_room': 'Välj minst ett rum innan du fortsätter',
+        'room_added': 'Rummet har lagts till i din bokning',
+        'error_occurred': 'Fel inträffade',
+        'cannot_add_room': 'Kunde inte lägga till rummet',
+        'booking_info_missing': 'Bokningsinformation saknas.',
+        'booking_success': 'Bokningen lyckades!',
+        'booking_failed': 'Bokningen misslyckades.',
+        'cancel_success': 'Bokningen har avbokats!',
+        'empty_cart': 'Varukorgen är tom.'
+    },
+
+    'en': {
+        # Navigation
+        'home': 'Home',
+        'create_account': 'Create account',
+        'my_bookings': 'My bookings',
+        'back_to_home': '← Back to home',
+
+        # Index page
+        'welcome_title': 'Welcome to Nordic Haven Hotel',
+        'welcome_text_1': 'Discover a place where relaxation meets elegance. At',
+        'welcome_text_2': 'we create memorable stays, whether you travel for business or leisure.',
+        'find_room_title': 'Find your perfect room',
+        'check_in': 'Check-in date',
+        'check_out': 'Check-out date',
+        'guests': 'Number of guests',
+        'show_available_rooms': 'Show available rooms',
+
+        # About
+        'about_hotel_title': 'About Nordic Haven Hotel',
+        'about_hotel_text_1': 'Since the mid-1900s, Nordic Haven Hotel has welcomed guests to the heart of Gothenburg. With a focus on personal service and high comfort, we offer a harmonious environment where tradition meets modern life.',
+        'about_hotel_text_2': 'Our rooms are carefully designed to suit different needs – from comfortable single rooms to spacious suites for longer stays.',
+
+        # Rooms page
+        'available_rooms': 'Available Rooms',
+        'book_now': 'Book now',
+        'add_room': 'Add room',
+        'sorry': 'Sorry!',
+        'no_rooms': 'We do not have any available rooms for these dates and number of guests.',
+
+        # Customer / registration
+        'customer_registration': 'Customer Registration',
+        'first_name': 'First name',
+        'last_name': 'Last name',
+        'email': 'Email',
+        'phone': 'Phone number',
+        'register': 'Register',
+        'first_name_placeholder': 'Enter your first name',
+        'last_name_placeholder': 'Enter your last name',
+        'email_placeholder': 'example@mail.com',
+        'phone_placeholder': '070-1234567',
+        'registration_success': 'Registration successful!',
+        'redirecting_message': 'You are being redirected...',
+        'generic_error': 'Something went wrong, please try again.',
+
+        # Booking page
+        'customer_id': 'Customer ID',
+        'confirm_booking': 'Confirm booking',
+        'booking_summary': 'Booking summary',
+        'selected_rooms': 'Selected rooms',
+        'per_night': '/ night',
+        'total_price': 'Total price',
+        'no_active_booking': 'No active booking was found.',
+        'booking_info_error': 'Could not retrieve booking information.',
+        'booking_confirmed_message': 'Your booking is confirmed! Thank you for your reservation.',
+        'booking_failed_message': 'Booking failed',
+        'technical_error': 'A technical error occurred.',
+
+        # My bookings page
+        'show_bookings': 'Show bookings',
+        'booking_id': 'Booking',
+        'room_id': 'Room',
+        'room_type': 'Type',
+        'price': 'Price',
+        'actions': 'Actions',
+        'no_bookings_found': 'No bookings found',
+        'booking_fetch_error': 'Error fetching bookings',
+        'confirm_cancel': 'Do you want to cancel?',
+        'cancel_error': 'Error while canceling',
+
+        # Actions / general
+        'cancel': 'Cancel',
+
+        # Footer
+        'footer_rights': 'All rights reserved.',
+
+        # Toast / messages
+        'choose_room': 'Please select at least one room before continuing',
+        'room_added': 'The room has been added to your booking',
+        'error_occurred': 'An error occurred',
+        'cannot_add_room': 'Could not add the room',
+        'booking_info_missing': 'Booking information is missing.',
+        'booking_success': 'Booking successful!',
+        'booking_failed': 'Booking failed.',
+        'cancel_success': 'Booking has been canceled!',
+        'empty_cart': 'The cart is empty.'
+    }
+}
+
+def get_language():
+    lang = session.get('language', 'sv')
+    return translations.get(lang, translations['sv'])
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    if lang in translations:
+        session['language'] = lang
+        session.modified = True
+    return jsonify({'status': 'success'})
 
 def database_connection():
     return mysql.connector.connect(
@@ -29,32 +214,36 @@ except Exception as e:
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    t = get_language()
+    return render_template('index.html', t=t)
 
 @app.route('/booking.html')
 def booking():
-    return render_template('booking.html')
+    t = get_language()
+    return render_template('booking.html', t=t)
 
-@app.route('/Mina_bokningar.html')
+@app.route('/mina_bokningar.html')
 def mina_bokningar_page():
-    return render_template('Mina_bokningar.html')
-
+    t = get_language()
+    return render_template('mina_bokningar.html', t=t)
 
 @app.route('/rooms.html')
 def rooms():
-
-    #spara datum och antal personer i sessionen
+    
     if request.args.get('check_in_date'):
         session['check_in_date'] = request.args.get('check_in_date')
         session['check_out_date'] = request.args.get('check_out_date')
         session['antal_personer'] = request.args.get('antal_personer')
         session.modified = True
 
+    in_date = session.get('check_in_date')
+    out_date = session.get('check_out_date')
+    guests = session.get('antal_personer')
 
-    in_date = session['check_in_date']
-    out_date = session['check_out_date']
-    guests = session['antal_personer']
+    t = get_language()
 
+    if not in_date or not out_date or not guests:
+        return t['booking_info_missing'], 400
 
     conn = database_connection()
     cursor = conn.cursor()
@@ -74,13 +263,15 @@ def rooms():
     cursor.close()
     conn.close()
 
-    
-    return render_template('rooms.html', rooms=lediga_rum)
+    return render_template('rooms.html', rooms=lediga_rum, t=t)
+
+
 
 
 @app.route('/kunder.html')
 def kunder():
-    return render_template('kunder.html')
+    t = get_language()
+    return render_template('kunder.html', t=t)
 
 @app.route('/api/selectRoom', methods=['POST']) #skapar varukorg med rum
 def select_room():
@@ -135,7 +326,7 @@ def register():
     return jsonify({'status': 'success', 'customer_id': customer_id})
 
 
-@app.route('/api/Mina_bokningar.html', methods=['GET']) #hämtar bokningar för en kund
+@app.route('/api/mina_bokningar.html', methods=['GET']) #hämtar bokningar för en kund
 def get_bookings():
     email = request.args.get('email')
     
@@ -222,33 +413,32 @@ def book_room():
 
 @app.route('/api/getBookingSummary', methods=['GET'])
 def get_booking_summary():
-    #Kolla om det finns rum i varukorgen
     if 'basket' not in session or len(session['basket']) == 0:
         return jsonify({'status': 'error', 'message': 'Varukorgen är tom.'})
 
-    
     check_in_str = session.get('check_in_date')
     check_out_str = session.get('check_out_date')
-    
+    nights_count = 1
+
     if check_in_str and check_out_str:
         try:
             check_in_date = datetime.strptime(check_in_str, '%Y-%m-%d')
             check_out_date = datetime.strptime(check_out_str, '%Y-%m-%d')
             nights_count = (check_out_date - check_in_date).days
-            if nights_count <= 0: nights_count = 1
+            if nights_count <= 0:
+                nights_count = 1
         except ValueError:
-            pass
+            nights_count = 1
 
     try:
         conn = database_connection()
         cursor = conn.cursor()
 
         rooms_in_basket = ', '.join(['%s'] * len(session['basket']))
-        
         sql = f"SELECT id, room_name, price, image FROM rum WHERE id IN ({rooms_in_basket})"
         cursor.execute(sql, tuple(session['basket']))
-        rum_data = cursor.fetchall() #sparar datan i rum_data
-        
+        rum_data = cursor.fetchall()
+
         cursor.close()
         conn.close()
 
@@ -256,22 +446,23 @@ def get_booking_summary():
         total_price = 0
 
         for r in rum_data:
-            room_price = float(r[2]) 
+            room_price = float(r[2])
             rooms_list.append({
-                'name': r[1],      
+                'name': r[1],
                 'price': room_price,
-                'image': r[3]      
+                'image': r[3]
             })
             total_price += (room_price * nights_count)
 
-        return jsonify({'status': 'success','rooms': rooms_list,'total_price': total_price,})
+        return jsonify({
+            'status': 'success',
+            'rooms': rooms_list,
+            'total_price': total_price,
+        })
 
     except Exception as e:
         print(f"Något gick fel: {e}")
         return jsonify({'status': 'error'})
-    
-
-
 #AVBOKNING
 @app.route('/api/cancelBooking', methods=['POST'])
 def cancel_booking():
