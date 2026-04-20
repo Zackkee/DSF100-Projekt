@@ -52,14 +52,11 @@
             <label for="phone">{{ t.phone }}</label>
             <input type="text" id="phone" placeholder="{{ t.phone_placeholder }}">
 
-            <label for="password">Lösenord</label>
-            <input type="password" id="password" required placeholder="Skriv ditt lösenord">
+            <label for="password">{{ t.password }}</label>
+            <input type="password" id="password" required placeholder="{{ t.password_placeholder }}">
 
             <button type="submit">{{ t.register }}</button>
         </form>
-
-        <p id="msg"></p>
-    </div>
 
         <p id="msg"></p>
     </div>

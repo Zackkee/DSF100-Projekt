@@ -9,26 +9,18 @@
 
 <body class="index-background">
     <header>
-        <nav>
-            <a href="kunder.html">Skapa konto</a>
-            <a id="bookings-link" href="Mina_bokningar.html">Mina bokningar</a>
-            {% if session.get('customer_name') %}
-        
-        <span style="color: green; margin-right: 15px;">
-            Inloggad som: <b>{{ session.get('customer_name') }}</b>
-        </span>
-        <a href="/Mina_bokningar.html?email={{ session.get('customer_email') }}">Mina bokningar</a>
-        <a href="/logout">Logga ut</a>
-        
-    {% else %}
-        
-        <a href="/login.html">Logga in</a>
-        
-    {% endif %}
         <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
             <div>
-                <a href="/kunder.html">{{ t.create_account }}</a>
-                <a id="bookings-link" href="/mina_bokningar.html">{{ t.my_bookings }}</a>
+                {% if session.get('customer_name') %}
+                    <span style="color: rgb(0, 0, 0); margin-right: 15px;">
+                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
+                    </span>
+                    <a id="bookings-link" href="/mina_bokningar.html?email={{ session.get('customer_email') }}">{{ t.my_bookings }}</a>
+                    <a href="/logout">{{ t.logout }}</a>
+                {% else %}
+                    <a href="/kunder.html">{{ t.create_account }}</a>
+                    <a href="/login.html">{{ t.login }}</a>
+                {% endif %}
             </div>
 
             <div>
@@ -52,41 +44,34 @@
         </nav>
     </header>
 
-    <!-- ===== Innehåll ===== -->
     <main class="container">
 
-        <!-- Hero -->
-<section>
-    <h1>{{ t.welcome_title }}</h1>
+        <section>
+            <h1>{{ t.welcome_title }}</h1>
 
-    <p style="
-        text-align: center;
-        max-width: 950px;
-        margin: 0 auto 30px auto;
-        line-height: 1.8;
-        font-size: 20px;
-    ">
-        {{ t.welcome_text_1 }}
-        <strong>Nordic Haven Hotel</strong>
-        {{ t.welcome_text_2 }}
-    </p>
-</section>
+            <p style="
+                text-align: center;
+                max-width: 950px;
+                margin: 0 auto 30px auto;
+                line-height: 1.8;
+                font-size: 20px;
+            ">
+                {{ t.welcome_text_1 }}
+                <strong>Nordic Haven Hotel</strong>
+                {{ t.welcome_text_2 }}
+            </p>
+        </section>
 
-        <!-- Sök rum -->
         <section>
             <h1>{{ t.find_room_title }}</h1>
 
-            <form id="search-rooms" action="rooms.html" method="GET">
-                <label for="check_in_date">Ankomstdatum</label>
-                <input type="date" id="check_in_date" name="check_in_date" min="{{today}}" required>
-            <form action="/rooms.html" method="GET">
+            <form id="search-rooms" action="/rooms.html" method="GET">
+                
                 <label for="check_in_date">{{ t.check_in }}</label>
-                <input type="date" id="check_in_date" name="check_in_date" required>
+                <input type="date" id="check_in_date" name="check_in_date" min="{{ today }}" required>
 
                 <label for="check_out_date">{{ t.check_out }}</label>
-                <input type="date" id="check_out_date" name="check_out_date" required>
-                <label for="check_out_date">Avresedatum</label>
-                <input type="date" id="check_out_date" name="check_out_date" min="{{today}}" required>
+                <input type="date" id="check_out_date" name="check_out_date" min="{{ today }}" required>
 
                 <label for="antal_personer">{{ t.guests }}</label>
                 <input type="number" id="antal_personer" name="antal_personer" min="1" required>
@@ -95,25 +80,20 @@
             </form>
         </section>
 
-        <!-- Om hotellet -->
         <section>
             <h2>{{ t.about_hotel_title }}</h2>
-
             <p>{{ t.about_hotel_text_1 }}</p>
-
             <p>{{ t.about_hotel_text_2 }}</p>
         </section>
 
     </main>
 
-    <!-- ===== Footer ===== -->
     <footer>
         <p style="text-align:center; padding: 20px 0;">
             &copy; 2026 Nordic Haven Hotel. {{ t.footer_rights }}
         </p>
     </footer>
 
-    <!-- ===== Script ===== -->
     <script>
         function changeLanguage(lang) {
             fetch(`/set_language/${lang}`)
@@ -128,17 +108,10 @@
                 });
         }
 
-        const params = new URLSearchParams(window.location.search);
-        const email = params.get("email");
-
-        if (email) {
-            document.getElementById("bookings-link").href =
-                `/mina_bokningar.html?email=${email}`;
-        }
         document.getElementById("search-rooms").addEventListener("submit", function(e) {
             const checkIn = document.getElementById("check_in_date").value;
             const checkOut = document.getElementById("check_out_date").value;
-            const today = new Date().toISOString().split("T")[0];
+            
             if (checkIn >= checkOut) {
                 e.preventDefault();
                 alert("Avresedatum måste vara efter ankomstdatum.");

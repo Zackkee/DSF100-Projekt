@@ -3,30 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mina bokningar</title>
+    <title>{{ t.login | default('Logga in') }} – Nordic Haven Hotel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
     <header>
-        <nav>
-            <a href="/">Startsida</a>
+        <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
+            <div>
+                <a href="/">{{ t.back_to_home | default('Startsida') }}</a>
+                <a href="/kunder.html">{{ t.create_account | default('Skapa konto') }}</a>
+            </div>
+
+            <div>
+                <button onclick="changeLanguage('sv')" style="padding: 8px 14px; margin-right: 8px; border: none; border-radius: 20px; cursor: pointer;">Svenska</button>
+                <button onclick="changeLanguage('en')" style="padding: 8px 14px; border: none; border-radius: 20px; cursor: pointer;">English</button>
+            </div>
         </nav>
     </header>
 
-    <main class="container">
-        <h1>Logga in</h1>
-        <form action="/api/login" method="POST">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+    <main class="container" style="max-width: 500px; margin: 60px auto;">
+        <h1 style="text-align: center;">{{ t.login_header | default('Logga in') }}</h1>
 
-            <label for="password">Lösenord:</label>
-            <input type="password" id="password" name="password" required>
+        <div class="form-container">
+            <form id="login-form">
+                
+                <label for="email">{{ t.email | default('Email') }}</label>
+                <input type="email" id="email" required placeholder="exempel@mail.com">
 
-            <button type="submit">Logga in</button>
-        </form>
+                <label for="password">{{ t.password | default('Lösenord') }}</label>
+                <input type="password" id="password" required placeholder="******">
+
+                <button type="submit">{{ t.login | default('Logga in') }}</button>
+            </form>
+
+            <p id="msg" style="display: none; margin-top: 15px; text-align: center;"></p>
+        </div>
     </main>
+
     <script>
-        //
+        function changeLanguage(lang) {
+            fetch(`/set_language/${lang}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        location.reload();
+                    }
+                });
+        }
+
+        document.getElementById("login-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // Stoppar sidan från att laddas om!
+
+            const data = {
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            };
+
+            fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                const msgEl = document.getElementById("msg");
+                msgEl.style.display = "block"; // Visa rutan
+
+                if (result.status === "success") {
+                    msgEl.innerText = "✅ Inloggningen lyckades!";
+                    msgEl.className = "success";
+
+                    // Skicka kunden till startsidan efter en liten stund
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1500);
+                } else {
+                    // Om lösenordet var fel, visa felmeddelandet från Python
+                    msgEl.innerText = "❌ " + (result.message || "Ett fel uppstod.");
+                    msgEl.className = "error";
+                }
+            })
+            .catch(() => {
+                const msgEl = document.getElementById("msg");
+                msgEl.style.display = "block";
+                msgEl.innerText = "❌ Kunde inte ansluta till servern.";
+                msgEl.className = "error";
+            });
+        });
     </script>
+
 </body>
 </html>

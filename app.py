@@ -48,7 +48,10 @@ translations = {
         'home': 'Hem',
         'create_account': 'Skapa konto',
         'my_bookings': 'Mina bokningar',
-        'back_to_home': '← Tillbaka till start',
+        'back_to_home': 'Startsida',
+        'login': 'Logga in',
+        'logout': 'Logga ut',
+        'logged_in_as': 'Inloggad som:',
 
         # Index page
         'welcome_title': 'Välkommen till Nordic Haven Hotel',
@@ -59,6 +62,7 @@ translations = {
         'check_out': 'Avresedatum',
         'guests': 'Antal gäster',
         'show_available_rooms': 'Visa lediga rum',
+        
 
         # About
         'about_hotel_title': 'Om Nordic Haven Hotel',
@@ -86,6 +90,8 @@ translations = {
         'registration_success': 'Registreringen lyckades!',
         'redirecting_message': 'Du skickas vidare...',
         'generic_error': 'Något gick fel, försök igen.',
+        'password': 'Lösenord',
+        'password_placeholder': 'Skriv ditt lösenord',
 
         # Booking page
         'customer_id': 'Kund-ID',
@@ -143,7 +149,13 @@ translations = {
         'thank_you_message_1': 'Vi är så glada att du har valt Nordic Haven Hotel 🌸',
         'thank_you_message_2': 'Vi ser fram emot att välkomna dig!',
         'back_home_button': 'Tillbaka till startsidan',
-        'redirect_note': 'Du skickas automatiskt tillbaka om några sekunder.'
+        'redirect_note': 'Du skickas automatiskt tillbaka om några sekunder.',
+
+        # Login page
+        'login_header': 'Logga in',
+        'no_account': 'Har du inget konto?',
+        'create_account_link': 'Skapa ett här',
+        'login_success': 'Inloggning lyckades!',
     },
 
     'en': {
@@ -152,6 +164,9 @@ translations = {
         'create_account': 'Create account',
         'my_bookings': 'My bookings',
         'back_to_home': '← Back to home',
+        'login': 'Log in',
+        'logout': 'Log out',
+        'logged_in_as': 'Logged in as:',
 
         # Index page
         'welcome_title': 'Welcome to Nordic Haven Hotel',
@@ -189,6 +204,8 @@ translations = {
         'registration_success': 'Registration successful!',
         'redirecting_message': 'You are being redirected...',
         'generic_error': 'Something went wrong, please try again.',
+        'password': 'Password',
+        'password_placeholder': 'Enter your password',
 
         # Booking page
         'customer_id': 'Customer ID',
@@ -246,7 +263,13 @@ translations = {
         'thank_you_message_1': 'We are so happy you chose Nordic Haven Hotel 🌸',
         'thank_you_message_2': 'We look forward to welcoming you!',
         'back_home_button': 'Back to home',
-        'redirect_note': 'You will be redirected in a few seconds.'
+        'redirect_note': 'You will be redirected in a few seconds.',
+
+        # Login page
+        'login_header': 'Log in',
+        'no_account': 'Don\'t have an account?',
+        'create_account_link': 'Create one here',
+        'login_success': 'Login successful!',
     }
 }
 
@@ -293,7 +316,8 @@ def index():
 
 @app.route('/login.html')
 def login():
-    return render_template('login.html')
+    t = get_language()
+    return render_template('login.html', t=t)
 
 @app.route('/rooms.html')
 def rooms():
@@ -385,7 +409,6 @@ def selected_rooms():
     return jsonify({'hasRooms': False})
 
 
-@app.route('/api/register', methods=['POST'])
 @app.route('/api/register', methods=['POST']) 
 def register():
     data = request.get_json()
@@ -401,18 +424,14 @@ def register():
     #Kolla om e-posten redan finns
     cursor.execute("SELECT kund_id FROM kunder WHERE email = %s", (email,))
     existing_customer = cursor.fetchone()
-
     
     if existing_customer:
-        customer_id = existing_customer[0]
         cursor.close()
         conn.close()
         return jsonify({'status': 'error', 'message': 'E-posten är redan registrerad.'})
         
     else:
-        sql = 'INSERT INTO kunder (firstname, lastname, email, phone) VALUES (%s, %s, %s, %s)'
-        values = (firstname, lastname, email, phone)
-        #Spara i databas
+        #Spara i databasen
         sql = 'INSERT INTO kunder (firstname, lastname, email, phone, password) VALUES (%s, %s, %s, %s, %s)'
         values = (firstname, lastname, email, phone, password)
 
@@ -421,6 +440,7 @@ def register():
 
         customer_id = cursor.lastrowid
         
+        #Logga in kunden automatiskt efter registrering
         session['customer_id'] = customer_id
         session['customer_email'] = email
         session.modified = True
@@ -618,6 +638,45 @@ def cancel_booking():
     except Exception as e:
         print(f"Går ej att avboka: {e}")
         return jsonify({'status': 'error'})
+    
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'status': 'error', 'message': 'E-post och lösenord krävs.'})
+
+    try:
+        conn = database_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT kund_id, password, firstname FROM kunder WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+
+        if user and user[1] == password:
+            session['customer_id'] = user[0]
+            session['customer_email'] = email
+            session['customer_name'] = user[2]
+            session.modified = True
+            return jsonify({'status': 'success'})
+        else:
+            return jsonify({'status': 'error', 'message': 'Fel e-post eller lösenord.'})
+
+    except Exception as e:
+        print(f"Login error: {e}")
+        return jsonify({'status': 'error', 'message': 'Ett tekniskt fel uppstod.'})
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    from flask import redirect
+    return redirect('/')
     
 
 

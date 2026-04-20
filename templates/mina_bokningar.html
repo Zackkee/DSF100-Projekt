@@ -11,6 +11,9 @@
 <header>
     <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
         <div>
+            <span style="color: rgb(0, 0, 0); margin-right: 15px;">
+                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
+            </span>
             <a class="back" href="/">{{ t.back_to_home }}</a>
         </div>
 
@@ -38,14 +41,6 @@
 <div class="container">
 
     <h1>{{ t.my_bookings }}</h1>
-
-    <form id="idForm" class="card">
-        <label>
-            {{ t.email }}
-            <input type="email" id="email" name="email" required placeholder="{{ t.email_placeholder }}">
-        </label>
-        <button type="submit">{{ t.show_bookings }}</button>
-    </form>
 
     <p id="info" class="info"></p>
 
