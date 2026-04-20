@@ -4,42 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rooms – Nordic Haven Hotel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            min-width: 280px;
+            max-width: 90%;
+            background: #111827;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 9999;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        #toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        .toast-warning { background: #f59e0b; }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.7);
+            width: 100%;
+            animation: progress 3s linear forwards;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    </style>
 </head>
 
 <body class="rooms-page">
 
-<nav>
-    <a href="/">Hem</a>
+<nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
+    <a href="/">{{ t.home }}</a>
+
+    <div>
+        <button onclick="changeLanguage('sv')" style="
+            padding: 8px 14px;
+            margin-right: 8px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;">
+            Svenska
+        </button>
+
+        <button onclick="changeLanguage('en')" style="
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;">
+            English
+        </button>
+    </div>
 </nav>
 
 <header class="rooms-hero">
-    <h1>Tillgängliga rum</h1>
+    <h1>{{ t.available_rooms }}</h1>
 </header>
 
 <main class="rooms-wrapper">
-
-  {% for room in rooms %}
+    {% for room in rooms %}
     <section class="room-showcase">
         <img src="{{ url_for('static', filename=room[5]) }}" alt="{{ room[1] }}">
         <div class="room-overlay">
             <h2>{{ room[1] }}</h2>
             <p>{{ room[2] }}</p>
             <span class="price">{{ room[4] }} SEK / natt</span>
-            <button onclick="addRoom('{{ room[0] }}')">Lägg till rum</button>
+            <button onclick="addRoom('{{ room[0] }}')">{{ t.add_room }}</button>
         </div>
     </section>
     {% else %}
     <div style="text-align: center; width: 100%; color: white; margin-top: 50px;">
-        <h2>Tyvärr!</h2>
-        <p>Vi har inga lediga rum för dessa datum och det antalet gäster.</p>
+        <h2>{{ t.sorry }}</h2>
+        <p>{{ t.no_rooms }}</p>
     </div>
     {% endfor %}
-
 </main>
 
-<!-- BOKA NU -->
 <div style="text-align:center; margin: 40px 0;">
     <button onclick="goToRegister()" style="
         padding: 15px 40px;
@@ -50,14 +116,75 @@
         background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
         color: white;
         cursor: pointer;">
-        Boka nu
+        {{ t.book_now }}
     </button>
 </div>
 
-<p id="room-message" style="text-align:center; font-weight:bold; margin-top:20px;"></p>
+<div id="toast" class="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-text"></span>
+    <div class="toast-progress"></div>
+</div>
 
 <script>
-// Lägg till rum via backend
+const pageTexts = {
+    roomAdded: "{{ t.room_added }}",
+    errorOccurred: "{{ t.error_occurred }}",
+    cannotAddRoom: "{{ t.cannot_add_room }}",
+    chooseRoom: "{{ t.choose_room }}"
+};
+
+function changeLanguage(lang) {
+    fetch(`/set_language/${lang}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                location.reload();
+            }
+        })
+        .catch(() => {
+            console.error("Language change failed");
+        });
+}
+
+function showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
+    const text = document.getElementById("toast-text");
+    const icon = document.getElementById("toast-icon");
+
+    text.innerText = message;
+    toast.className = "toast";
+
+    if (type === "success") {
+        toast.classList.add("toast-success");
+        icon.innerText = "✅";
+        playSound();
+    } else if (type === "error") {
+        toast.classList.add("toast-error");
+        icon.innerText = "❌";
+    } else {
+        toast.classList.add("toast-warning");
+        icon.innerText = "⚠️";
+    }
+
+    toast.classList.add("show");
+
+    const progress = toast.querySelector(".toast-progress");
+    progress.style.animation = "none";
+    progress.offsetHeight;
+    progress.style.animation = null;
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+
+function playSound() {
+    const audio = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+    audio.volume = 0.3;
+    audio.play();
+}
+
 function addRoom(roomId) {
     fetch("/api/selectRoom", {
         method: "POST",
@@ -66,34 +193,25 @@ function addRoom(roomId) {
     })
     .then(res => res.json())
     .then(data => {
-        const msg = document.getElementById("room-message");
-
         if (data.status === "success") {
-            msg.innerText = "✅ Rummet har lagts till i din bokning";
-            msg.style.color = "green";
+            showToast(pageTexts.roomAdded, "success");
         } else {
-            msg.innerText = "❌ " + data.message;
-            msg.style.color = "red";
+            showToast(data.message || pageTexts.errorOccurred, "error");
         }
     })
     .catch(() => {
-        const msg = document.getElementById("room-message");
-        msg.innerText = "❌ Kunde inte lägga till rummet";
-        msg.style.color = "red";
+        showToast(pageTexts.cannotAddRoom, "error");
     });
 }
 
-// Gå till kundregistrering
 function goToRegister() {
     fetch("/api/hasSelectedRooms")
         .then(res => res.json())
         .then(data => {
             if (data.hasRooms) {
-                window.location.href = "kunder.html";
+                window.location.href = "/kunder.html";
             } else {
-                const msg = document.getElementById("room-message");
-                msg.innerText = "⚠️ Välj minst ett rum innan du fortsätter";
-                msg.style.color = "orange";
+                showToast(pageTexts.chooseRoom, "warning");
             }
         });
 }

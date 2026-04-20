@@ -3,45 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mina bokningar</title>
+    <title>{{ t.my_bookings }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
+<header>
+    <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
+        <div>
+            <a class="back" href="/">{{ t.back_to_home }}</a>
+        </div>
+
+        <div>
+            <button onclick="changeLanguage('sv')" style="
+                padding: 8px 14px;
+                margin-right: 8px;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;">
+                Svenska
+            </button>
+
+            <button onclick="changeLanguage('en')" style="
+                padding: 8px 14px;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;">
+                English
+            </button>
+        </div>
+    </nav>
+</header>
+
 <div class="container">
 
-    <a class="back" href="/">← Till startsidan</a>
+    <h1>{{ t.my_bookings }}</h1>
 
-    <h1>Mina bokningar</h1>
-
-<form id="idForm" class="card">
-    <label>
-        Email
-        <input type="email" id="email" name="email" required>
-    </label>
-    <button type="submit">Visa bokningar</button>
-</form>
+    <form id="idForm" class="card">
+        <label>
+            {{ t.email }}
+            <input type="email" id="email" name="email" required placeholder="{{ t.email_placeholder }}">
+        </label>
+        <button type="submit">{{ t.show_bookings }}</button>
+    </form>
 
     <p id="info" class="info"></p>
 
-    <table id="table" style="display:none;">
+    <h2>{{ t.upcoming_bookings }}</h2>
+    <table id="upcoming-table" style="display:none;">
         <thead>
             <tr>
-                <th>Bokning</th>
-                <th>Rum</th>
-                <th>Typ</th>
-                <th>Incheckning</th>
-                <th>Utcheckning</th>
-                <th>Pris</th>
-                <th></th>
+                <th>{{ t.booking_id }}</th>
+                <th>{{ t.room_id }}</th>
+                <th>{{ t.room_type }}</th>
+                <th>{{ t.check_in }}</th>
+                <th>{{ t.check_out }}</th>
+                <th>{{ t.price }}</th>
+                <th>{{ t.actions }}</th>
             </tr>
         </thead>
-        <tbody id="rows"></tbody>
+        <tbody id="upcoming-rows"></tbody>
+    </table>
+
+    <h2>{{ t.past_bookings }}</h2>
+    <table id="past-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>{{ t.booking_id }}</th>
+                <th>{{ t.room_id }}</th>
+                <th>{{ t.room_type }}</th>
+                <th>{{ t.check_in }}</th>
+                <th>{{ t.check_out }}</th>
+                <th>{{ t.price }}</th>
+                <th>{{ t.status }}</th>
+            </tr>
+        </thead>
+        <tbody id="past-rows"></tbody>
     </table>
 
 </div>
 
 <script>
+const uiText = {
+    noBookingsFound: "{{ t.no_bookings_found }}",
+    bookingFetchError: "{{ t.booking_fetch_error }}",
+    confirmCancel: "{{ t.confirm_cancel }}",
+    cancelError: "{{ t.cancel_error }}",
+    cancelButton: "{{ t.cancel }}",
+    completedStatus: "{{ t.completed_status }}"
+};
+
+function changeLanguage(lang) {
+    fetch(`/set_language/${lang}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                location.reload();
+            }
+        })
+        .catch(() => {
+            console.error("Language change failed");
+        });
+}
+
 let savedEmail = null;
 
 document.getElementById("idForm").addEventListener("submit", function(e) {
@@ -51,50 +115,84 @@ document.getElementById("idForm").addEventListener("submit", function(e) {
 });
 
 function getBookings(email) {
-    fetch("/api/Mina_bokningar.html?email=" + email)
+    fetch("/api/mina_bokningar.html?email=" + encodeURIComponent(email))
         .then(res => res.json())
         .then(data => {
-            const table = document.getElementById("table");
-            const rows = document.getElementById("rows");
-            rows.innerHTML = "";
+            const upcomingTable = document.getElementById("upcoming-table");
+            const pastTable = document.getElementById("past-table");
+            const upcomingRows = document.getElementById("upcoming-rows");
+            const pastRows = document.getElementById("past-rows");
+            const info = document.getElementById("info");
+
+            upcomingRows.innerHTML = "";
+            pastRows.innerHTML = "";
+            info.innerText = "";
 
             if (data.status === "success" && data.bookings.length > 0) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let hasUpcoming = false;
+                let hasPast = false;
+
                 data.bookings.forEach(b => {
-                    const tr = document.createElement("tr");
+                    const checkOutDate = new Date(b.check_out);
 
-                    tr.innerHTML =
-                        `<td>${b.booking_id}</td>
-                         <td>${b.room_id}</td>
-                         <td>${b.room_name}</td>
-                         <td>${b.check_in}</td>
-                         <td>${b.check_out}</td>
-                        <td>${b.price} SEK</td>
-                         <td>
-                            <button class="cancel"
-                              onclick="removeBooking(${b.booking_id}, ${b.room_id})">
-                              Avboka
-                            </button>
-                         </td>`;
+                    if (checkOutDate >= today) {
+                        hasUpcoming = true;
 
-                    rows.appendChild(tr);
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${b.booking_id}</td>
+                            <td>${b.room_id}</td>
+                            <td>${b.room_name}</td>
+                            <td>${b.check_in}</td>
+                            <td>${b.check_out}</td>
+                            <td>${b.price} SEK</td>
+                            <td>
+                                <button class="cancel"
+                                    onclick="removeBooking(${b.booking_id}, ${b.room_id})">
+                                    ${uiText.cancelButton}
+                                </button>
+                            </td>
+                        `;
+                        upcomingRows.appendChild(tr);
+                    } else {
+                        hasPast = true;
+
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${b.booking_id}</td>
+                            <td>${b.room_id}</td>
+                            <td>${b.room_name}</td>
+                            <td>${b.check_in}</td>
+                            <td>${b.check_out}</td>
+                            <td>${b.price} SEK</td>
+                            <td>${uiText.completedStatus}</td>
+                        `;
+                        pastRows.appendChild(tr);
+                    }
                 });
 
-                table.style.display = "table";
-                document.getElementById("info").innerText = "";
+                upcomingTable.style.display = hasUpcoming ? "table" : "none";
+                pastTable.style.display = hasPast ? "table" : "none";
+
+                if (!hasUpcoming && !hasPast) {
+                    info.innerText = uiText.noBookingsFound;
+                }
             } else {
-                table.style.display = "none";
-                document.getElementById("info").innerText =
-                    "Inga bokningar hittades";
+                upcomingTable.style.display = "none";
+                pastTable.style.display = "none";
+                info.innerText = uiText.noBookingsFound;
             }
         })
         .catch(() => {
-            document.getElementById("info").innerText =
-                "Fel vid hämtning av bokningar";
+            document.getElementById("info").innerText = uiText.bookingFetchError;
         });
 }
 
 function removeBooking(bookingId, roomId) {
-    if (!confirm("Vill du avboka?")) return;
+    if (!confirm(uiText.confirmCancel)) return;
 
     fetch("/api/cancelBooking", {
         method: "POST",
@@ -110,7 +208,7 @@ function removeBooking(bookingId, roomId) {
         getBookings(savedEmail);
     })
     .catch(() => {
-        alert("Fel vid avbokning");
+        alert(uiText.cancelError);
     });
 }
 </script>

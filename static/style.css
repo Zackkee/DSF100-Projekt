@@ -1,4 +1,7 @@
-/* ===== Grundstil ===== */
+
+* {
+    box-sizing: border-box;
+}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -311,6 +314,7 @@ table th {
     box-shadow: 0 0 8px rgba(14,165,233,0.5);
     outline: none;
 }
+
 
 .form-container form button {
     width: 100%;

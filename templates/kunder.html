@@ -8,36 +8,89 @@
 </head>
 <body>
 
-<nav>
-    <a href="/">← Tillbaka till start</a>
-</nav>
+<header>
+    <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
+        <div>
+            <a href="/">{{ t.back_to_home }}</a>
+        </div>
 
-<h1>Kundregistrering</h1>
+        <div>
+            <button onclick="changeLanguage('sv')" style="
+                padding: 8px 14px;
+                margin-right: 8px;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;">
+                Svenska
+            </button>
 
-<div class="form-container">
-    <form id="form">
-        <label for="fname">Förnamn</label>
-        <input type="text" id="fname" required placeholder="Skriv ditt förnamn">
+            <button onclick="changeLanguage('en')" style="
+                padding: 8px 14px;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;">
+                English
+            </button>
+        </div>
+    </nav>
+</header>
 
-        <label for="lname">Efternamn</label>
-        <input type="text" id="lname" required placeholder="Skriv ditt efternamn">
+<main class="container" style="max-width: 700px; margin: 40px auto;">
+    <h1>{{ t.customer_registration }}</h1>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" required placeholder="exempel@mail.com">
+    <div class="form-container">
+        <form id="form">
+            <label for="fname">{{ t.first_name }}</label>
+            <input type="text" id="fname" required placeholder="{{ t.first_name_placeholder }}">
 
-        <label for="phone">Telefon</label>
-        <input type="text" id="phone" placeholder="070-1234567">
+            <label for="lname">{{ t.last_name }}</label>
+            <input type="text" id="lname" required placeholder="{{ t.last_name_placeholder }}">
 
-        <label for="password">Lösenord</label>
-        <input type="password" id="password" required placeholder="Skriv ditt lösenord">
+            <label for="email">{{ t.email }}</label>
+            <input type="email" id="email" required placeholder="{{ t.email_placeholder }}">
 
-        <button type="submit">Registrera</button>
-    </form>
+            <label for="phone">{{ t.phone }}</label>
+            <input type="text" id="phone" placeholder="{{ t.phone_placeholder }}">
 
-    <p id="msg"></p>
-</div>
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" required placeholder="Skriv ditt lösenord">
+
+            <button type="submit">{{ t.register }}</button>
+        </form>
+
+        <p id="msg"></p>
+    </div>
+
+        <p id="msg"></p>
+    </div>
+</main>
+
+<footer>
+    <p style="text-align:center; padding: 20px 0;">
+        &copy; 2026 Nordic Haven Hotel. {{ t.footer_rights }}
+    </p>
+</footer>
 
 <script>
+const uiText = {
+    registrationSuccess: "{{ t.registration_success }}",
+    registrationRedirecting: "{{ t.redirecting_message }}",
+    genericError: "{{ t.generic_error }}"
+};
+
+function changeLanguage(lang) {
+    fetch(`/set_language/${lang}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                location.reload();
+            }
+        })
+        .catch(() => {
+            console.error("Language change failed");
+        });
+}
+
 document.getElementById("form").addEventListener("submit", function(e) {
     e.preventDefault();
 
@@ -45,7 +98,8 @@ document.getElementById("form").addEventListener("submit", function(e) {
         firstname: document.getElementById("fname").value,
         lastname: document.getElementById("lname").value,
         email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value
+        phone: document.getElementById("phone").value,
+        password: document.getElementById("password").value
     };
 
     fetch("/api/register", {
@@ -58,21 +112,20 @@ document.getElementById("form").addEventListener("submit", function(e) {
         const msgEl = document.getElementById("msg");
 
         if (result.status === "success") {
-            msgEl.innerText = "✅ Registreringen lyckades! Du skickas vidare...";
+            msgEl.innerText = "✅ " + uiText.registrationSuccess + " " + uiText.registrationRedirecting;
             msgEl.className = "success";
 
             setTimeout(() => {
-                window.location.href =
-                    `booking.html?customer_id=${result.customer_id}`;
+                window.location.href = `/booking.html?customer_id=${result.customer_id}`;
             }, 2000);
         } else {
-            msgEl.innerText = "❌ " + result.message;
+            msgEl.innerText = "❌ " + (result.message || uiText.genericError);
             msgEl.className = "error";
         }
     })
     .catch(() => {
         const msgEl = document.getElementById("msg");
-        msgEl.innerText = "❌ Något gick fel, försök igen.";
+        msgEl.innerText = "❌ " + uiText.genericError;
         msgEl.className = "error";
     });
 });
