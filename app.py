@@ -29,7 +29,8 @@ except Exception as e:
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    today = datetime.now().strftime('%Y-%m-%d')
+    return render_template('index.html', today=today)
 
 @app.route('/booking.html')
 def booking():
@@ -39,6 +40,9 @@ def booking():
 def mina_bokningar_page():
     return render_template('Mina_bokningar.html')
 
+@app.route('/login.html')
+def login():
+    return render_template('login.html')
 
 @app.route('/rooms.html')
 def rooms():
@@ -101,33 +105,40 @@ def selected_rooms():
     
     return jsonify({'hasRooms': False})
 
-@app.route('/api/register', methods=['POST']) #kund registrering
+@app.route('/api/register', methods=['POST']) 
 def register():
     data = request.get_json()
     firstname = data.get('firstname')
     lastname = data.get('lastname')
     email = data.get('email')
     phone = data.get('phone')
+    password = data.get('password')
 
     conn = database_connection()
     cursor = conn.cursor()
 
+    #Kolla om e-posten redan finns
     cursor.execute("SELECT kund_id FROM kunder WHERE email = %s", (email,))
     existing_customer = cursor.fetchone()
+    
     if existing_customer:
-        customer_id = existing_customer[0]
-        
+        cursor.close()
+        conn.close()
+        return jsonify({'status': 'error', 'message': 'E-posten är redan registrerad.'})
         
     else:
-        sql = 'INSERT INTO kunder (firstname, lastname, email, phone) VALUES (%s, %s, %s, %s)'
-        values = (firstname, lastname, email, phone)
+        #Spara i databas
+        sql = 'INSERT INTO kunder (firstname, lastname, email, phone, password) VALUES (%s, %s, %s, %s, %s)'
+        values = (firstname, lastname, email, phone, password)
 
         cursor.execute(sql, values)
-        
         conn.commit()
 
-
         customer_id = cursor.lastrowid
+        
+        session['customer_id'] = customer_id
+        session['customer_email'] = email
+        session.modified = True
 
     cursor.close()
     conn.close()
@@ -294,6 +305,7 @@ def cancel_booking():
     except Exception as e:
         print(f"Går ej att avboka: {e}")
         return jsonify({'status': 'error'})
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

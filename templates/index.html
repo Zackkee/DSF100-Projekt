@@ -8,12 +8,23 @@
 </head>
 
 <body class="index-background">
-
-    <!-- ===== Navigation ===== -->
     <header>
         <nav>
             <a href="kunder.html">Skapa konto</a>
             <a id="bookings-link" href="Mina_bokningar.html">Mina bokningar</a>
+            {% if session.get('customer_name') %}
+        
+        <span style="color: green; margin-right: 15px;">
+            Inloggad som: <b>{{ session.get('customer_name') }}</b>
+        </span>
+        <a href="/Mina_bokningar.html?email={{ session.get('customer_email') }}">Mina bokningar</a>
+        <a href="/logout">Logga ut</a>
+        
+    {% else %}
+        
+        <a href="/login.html">Logga in</a>
+        
+    {% endif %}
         </nav>
     </header>
 
@@ -35,12 +46,12 @@
         <section>
             <h1>Hitta ditt perfekta rum</h1>
 
-            <form action="rooms.html" method="GET">
+            <form id="search-rooms" action="rooms.html" method="GET">
                 <label for="check_in_date">Ankomstdatum</label>
-                <input type="date" id="check_in_date" name="check_in_date" required>
+                <input type="date" id="check_in_date" name="check_in_date" min="{{today}}" required>
 
                 <label for="check_out_date">Avresedatum</label>
-                <input type="date" id="check_out_date" name="check_out_date" required>
+                <input type="date" id="check_out_date" name="check_out_date" min="{{today}}" required>
 
                 <label for="antal_personer">Antal gäster</label>
                 <input type="number" id="antal_personer" name="antal_personer" min="1" required>
@@ -83,6 +94,15 @@
             document.getElementById("bookings-link").href =
                 `Mina_bookningar.html?email=${email}`;
         }
+        document.getElementById("search-rooms").addEventListener("submit", function(e) {
+            const checkIn = document.getElementById("check_in_date").value;
+            const checkOut = document.getElementById("check_out_date").value;
+            const today = new Date().toISOString().split("T")[0];
+            if (checkIn >= checkOut) {
+                e.preventDefault();
+                alert("Avresedatum måste vara efter ankomstdatum.");
+            }
+        });
     </script>
 
 </body>
