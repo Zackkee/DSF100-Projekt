@@ -359,6 +359,10 @@ def rooms():
 
 @app.route('/kunder.html')
 def kunder():
+    if 'customer_id' in session:
+        from flask import redirect, url_for
+        return redirect('/booking.html')
+
     t = get_language()
     return render_template('kunder.html', t=t)
 

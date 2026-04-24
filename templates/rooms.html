@@ -61,7 +61,18 @@
 <body class="rooms-page">
 
 <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
-    <a href="/">{{ t.home }}</a>
+    <div>
+                {% if session.get('customer_name') %}
+                    <span style="color: rgb(0, 0, 0); margin-right: 15px;">
+                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
+                    </span>
+                    <a id="bookings-link" href="/mina_bokningar.html?email={{ session.get('customer_email') }}">{{ t.my_bookings }}</a>
+                    <a href="/logout">{{ t.logout }}</a>
+                {% else %}
+                    <a href="/kunder.html">{{ t.create_account }}</a>
+                    <a href="/login.html">{{ t.login }}</a>
+                {% endif %}
+            </div>
 
     <div>
         <button onclick="changeLanguage('sv')" style="
@@ -127,12 +138,17 @@
 </div>
 
 <script>
+
+
 const pageTexts = {
     roomAdded: "{{ t.room_added }}",
     errorOccurred: "{{ t.error_occurred }}",
     cannotAddRoom: "{{ t.cannot_add_room }}",
-    chooseRoom: "{{ t.choose_room }}"
+    chooseRoom: "{{ t.choose_room }}",
+    mustBeLoggedIn: "{{ t.must_be_logged_in }}"
 };
+
+const isLoggedIn = {{ 'true' if session.get('customer_id') else 'false' }};
 
 function changeLanguage(lang) {
     fetch(`/set_language/${lang}`)
@@ -209,7 +225,16 @@ function goToRegister() {
         .then(res => res.json())
         .then(data => {
             if (data.hasRooms) {
-                window.location.href = "/kunder.html";
+                if (!isLoggedIn) {
+                    showToast(pageTexts.mustBeLoggedIn, "warning");
+
+                    setTimeout(() => {
+                        window.location.href = "/login.html";
+                    }, 2500);
+                } 
+                else {
+                    window.location.href = "/booking.html";
+                }
             } else {
                 showToast(pageTexts.chooseRoom, "warning");
             }

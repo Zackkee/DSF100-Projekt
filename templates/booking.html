@@ -12,8 +12,16 @@
     <header>
         <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
             <div>
-                <a href="/">{{ t.home }}</a>
-                <a href="/mina_bokningar.html">{{ t.my_bookings }}</a>
+                {% if session.get('customer_name') %}
+                    <span style="color: rgb(0, 0, 0); margin-right: 15px;">
+                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
+                    </span>
+                    <a id="bookings-link" href="/mina_bokningar.html?email={{ session.get('customer_email') }}">{{ t.my_bookings }}</a>
+                    <a href="/logout">{{ t.logout }}</a>
+                {% else %}
+                    <a href="/kunder.html">{{ t.create_account }}</a>
+                    <a href="/login.html">{{ t.login }}</a>
+                {% endif %}
             </div>
 
             <div>
