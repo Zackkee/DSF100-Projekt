@@ -75,6 +75,7 @@ translations = {
         'add_room': 'Lägg till rum',
         'sorry': 'Tyvärr!',
         'no_rooms': 'Vi har inga lediga rum för dessa datum och det antalet gäster.',
+        'must_be_logged_in': 'Du måste vara inloggad för att boka rum.',
 
         # Customer / registration
         'customer_registration': 'Kundregistrering',
@@ -189,6 +190,7 @@ translations = {
         'add_room': 'Add room',
         'sorry': 'Sorry!',
         'no_rooms': 'We do not have any available rooms for these dates and number of guests.',
+        'must_be_logged_in': 'You must be logged in to book a room.',
 
         # Customer / registration
         'customer_registration': 'Customer Registration',
@@ -603,6 +605,7 @@ def get_booking_summary():
         for r in rum_data:
             room_price = float(r[2])
             rooms_list.append({
+                'id': r[0],
                 'name': r[1],
                 'price': room_price,
                 'image': r[3]
@@ -681,8 +684,18 @@ def logout():
     session.clear()
     from flask import redirect
     return redirect('/')
-    
 
+
+@app.route('/api/removeFromBasket', methods=['POST'])
+def remove_from_basket():
+    data = request.get_json()
+    room_id = str(data.get('room_id'))
+
+    if 'basket' in session:
+        if room_id in session['basket']:
+            session['basket'].remove(room_id)
+            session.modified = True
+            return jsonify({"status": "success"})
 
 if __name__ == "__main__":
     app.run(debug=True)

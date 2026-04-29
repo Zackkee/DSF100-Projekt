@@ -92,60 +92,102 @@
             });
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const customerId = params.get("customer_id");
-    document.getElementById("customer_id").value = customerId || "";
 
-    fetch("/api/getBookingSummary")
+    const customerId = "{{ session.get('customer_id', '') }}";
+    document.getElementById("customer_id").value = customerId;
+
+
+    function loadSummary() {
+        fetch('/api/getBookingSummary')
         .then(res => res.json())
         .then(data => {
-            if (data.status !== "success") {
-                document.getElementById("message").innerText = "❌ " + uiText.noActiveBooking;
-                document.getElementById("message").className = "error";
-                return;
-            }
+            const list = document.getElementById('rooms'); 
+            const priceEl = document.getElementById('price'); 
+            
+            if (data.status === 'success') {
+                list.innerHTML = ""; 
+                
+                if (data.rooms.length === 0) {
+                    list.innerHTML = "<p>Varukorgen är tom.</p>";
+                    priceEl.innerText = "0 SEK";
+                    return;
+                }
 
-            document.getElementById("rooms").innerHTML =
-                "<h3>" + uiText.selectedRooms + "</h3>" +
-                data.rooms.map(r => `
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <img src="/static/${r.image}" alt="${r.name}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;">
-                        <div>
-                            <h4 style="margin: 0;">${r.name}</h4>
-                            <p style="margin: 5px 0 0 0;">${r.price} SEK ${uiText.perNight}</p>
+                data.rooms.forEach(room => {
+                    list.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #eee;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="/static/${room.image}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;">
+                                <div>
+                                    <b>${room.name}</b><br>
+                                    <span>${room.price} SEK</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeRoom('${room.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+                                {{ t.remove | default('Ta bort') }}
+                            </button>
                         </div>
-                    </div>
-                `).join("");
-
-            document.getElementById("price").innerText =
-                `${uiText.totalPrice}: ${data.total_price} SEK`;
+                    `;
+                });
+                priceEl.innerText = "Totalpris: " + data.total_price + " SEK";
+            } else {
+                list.innerHTML = `<p>${data.message || "Inga rum valda."}</p>`;
+                priceEl.innerText = "0 SEK";
+            }
         })
-        .catch(() => {
-            document.getElementById("message").innerText = "❌ " + uiText.bookingInfoError;
-            document.getElementById("message").className = "error";
+        .catch(err => {
+            console.error("Fel:", err);
+            document.getElementById('rooms').innerHTML = "<p>Kunde inte hämta bokningsinformationen.</p>";
         });
+    }
+
+
+    function removeRoom(roomId) {
+        fetch('/api/removeFromBasket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ room_id: roomId })
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.status === 'success') {
+                location.reload(); 
+            } else {
+                alert("Kunde inte ta bort rummet.");
+            }
+        });
+    }
+
 
     document.getElementById("booking-form").addEventListener("submit", e => {
         e.preventDefault();
 
+
+        const currentCustomerId = document.getElementById("customer_id").value;
+
+        if (!currentCustomerId) {
+            const msg = document.getElementById("message");
+            msg.innerText = "❌ Kund-ID saknas. Vänligen logga in för att boka.";
+            msg.className = "error";
+            return;
+        }
+
         fetch("/api/bookRoom", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ customer_id: customerId })
+            body: JSON.stringify({ customer_id: currentCustomerId })
         })
         .then(res => res.json())
         .then(data => {
             const msg = document.getElementById("message");
 
-if (data.status === "success") {
-    msg.innerText = "✅ " + uiText.bookingConfirmed;
-    msg.className = "success";
-
-    setTimeout(() => {
-        window.location.href = "/payment.html";
-    }, 1500);
-}
-             else {
+            if (data.status === "success") {
+                msg.innerText = "✅ " + uiText.bookingConfirmed;
+                msg.className = "success";
+                setTimeout(() => {
+                    window.location.href = "/payment.html";
+                }, 1500);
+            } else {
                 msg.innerText = "❌ " + uiText.bookingFailed + ": " + data.message;
                 msg.className = "error";
             }
@@ -156,6 +198,9 @@ if (data.status === "success") {
             msg.className = "error";
         });
     });
+
+    loadSummary();
+
     </script>
 
 </body>

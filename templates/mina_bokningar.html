@@ -12,7 +12,7 @@
     <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
         <div>
             <span style="color: rgb(0, 0, 0); margin-right: 15px;">
-                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
+                {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
             </span>
             <a class="back" href="/">{{ t.back_to_home }}</a>
         </div>
@@ -38,39 +38,41 @@
     </nav>
 </header>
 
-<div class="container">
+<div class="container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
 
     <h1>{{ t.my_bookings }}</h1>
 
     <p id="info" class="info"></p>
 
     <h2>{{ t.upcoming_bookings }}</h2>
-    <table id="upcoming-table" style="display:none;">
+    <table id="upcoming-table" style="display:none; width: 100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
-            <tr>
-                <th>{{ t.booking_id }}</th>
-                <th>{{ t.room_id }}</th>
-                <th>{{ t.room_type }}</th>
-                <th>{{ t.check_in }}</th>
-                <th>{{ t.check_out }}</th>
-                <th>{{ t.price }}</th>
-                <th>{{ t.actions }}</th>
+            <tr style="background: #f3f4f6; text-align: left;">
+                <th style="padding: 10px;">Bild</th> 
+                <th style="padding: 10px;">{{ t.booking_id }}</th>
+                <th style="padding: 10px;">{{ t.room_id }}</th>
+                <th style="padding: 10px;">{{ t.room_type }}</th>
+                <th style="padding: 10px;">{{ t.check_in }}</th>
+                <th style="padding: 10px;">{{ t.check_out }}</th>
+                <th style="padding: 10px;">{{ t.price }}</th>
+                <th style="padding: 10px;">{{ t.actions }}</th>
             </tr>
         </thead>
         <tbody id="upcoming-rows"></tbody>
     </table>
 
     <h2>{{ t.past_bookings }}</h2>
-    <table id="past-table" style="display:none;">
+    <table id="past-table" style="display:none; width: 100%; border-collapse: collapse;">
         <thead>
-            <tr>
-                <th>{{ t.booking_id }}</th>
-                <th>{{ t.room_id }}</th>
-                <th>{{ t.room_type }}</th>
-                <th>{{ t.check_in }}</th>
-                <th>{{ t.check_out }}</th>
-                <th>{{ t.price }}</th>
-                <th>{{ t.status }}</th>
+            <tr style="background: #f3f4f6; text-align: left;">
+                <th style="padding: 10px;">Bild</th> 
+                <th style="padding: 10px;">{{ t.booking_id }}</th>
+                <th style="padding: 10px;">{{ t.room_id }}</th>
+                <th style="padding: 10px;">{{ t.room_type }}</th>
+                <th style="padding: 10px;">{{ t.check_in }}</th>
+                <th style="padding: 10px;">{{ t.check_out }}</th>
+                <th style="padding: 10px;">{{ t.price }}</th>
+                <th style="padding: 10px;">{{ t.status }}</th>
             </tr>
         </thead>
         <tbody id="past-rows"></tbody>
@@ -101,15 +103,20 @@ function changeLanguage(lang) {
         });
 }
 
-let savedEmail = null;
+// 1. Hämta e-postadressen direkt från URL eller session
+const params = new URLSearchParams(window.location.search);
+let savedEmail = params.get("email") || "{{ session.get('customer_email', '') }}";
 
-document.getElementById("idForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    savedEmail = document.getElementById("email").value;
+// 2. Starta hämtningen automatiskt om vi har en e-postadress
+if (savedEmail) {
     getBookings(savedEmail);
-});
+} else {
+    document.getElementById("info").innerText = "Ingen e-postadress hittades. Vänligen logga in igen.";
+}
 
 function getBookings(email) {
+    // Observera: Din endpoint hette ".html", jag har låtit det vara så, 
+    // men dubbelkolla i din Python-kod (app.py) att route:n faktiskt heter så!
     fetch("/api/mina_bokningar.html?email=" + encodeURIComponent(email))
         .then(res => res.json())
         .then(data => {
@@ -123,7 +130,7 @@ function getBookings(email) {
             pastRows.innerHTML = "";
             info.innerText = "";
 
-            if (data.status === "success" && data.bookings.length > 0) {
+            if (data.status === "success" && data.bookings && data.bookings.length > 0) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
@@ -133,19 +140,23 @@ function getBookings(email) {
                 data.bookings.forEach(b => {
                     const checkOutDate = new Date(b.check_out);
 
+                    const tr = document.createElement("tr");
+                    tr.style.borderBottom = "1px solid #eee";
+
                     if (checkOutDate >= today) {
                         hasUpcoming = true;
-
-                        const tr = document.createElement("tr");
                         tr.innerHTML = `
-                            <td>${b.booking_id}</td>
-                            <td>${b.room_id}</td>
-                            <td>${b.room_name}</td>
-                            <td>${b.check_in}</td>
-                            <td>${b.check_out}</td>
-                            <td>${b.price} SEK</td>
-                            <td>
-                                <button class="cancel"
+                            <td style="padding: 10px;">
+                                <img src="/static/${b.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            </td>
+                            <td style="padding: 10px;">${b.booking_id}</td>
+                            <td style="padding: 10px;">${b.room_id}</td>
+                            <td style="padding: 10px;">${b.room_name}</td>
+                            <td style="padding: 10px;">${b.check_in}</td>
+                            <td style="padding: 10px;">${b.check_out}</td>
+                            <td style="padding: 10px;">${b.price} SEK</td>
+                            <td style="padding: 10px;">
+                                <button style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;"
                                     onclick="removeBooking(${b.booking_id}, ${b.room_id})">
                                     ${uiText.cancelButton}
                                 </button>
@@ -154,16 +165,17 @@ function getBookings(email) {
                         upcomingRows.appendChild(tr);
                     } else {
                         hasPast = true;
-
-                        const tr = document.createElement("tr");
                         tr.innerHTML = `
-                            <td>${b.booking_id}</td>
-                            <td>${b.room_id}</td>
-                            <td>${b.room_name}</td>
-                            <td>${b.check_in}</td>
-                            <td>${b.check_out}</td>
-                            <td>${b.price} SEK</td>
-                            <td>${uiText.completedStatus}</td>
+                            <td style="padding: 10px;">
+                                <img src="/static/${b.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            </td>
+                            <td style="padding: 10px;">${b.booking_id}</td>
+                            <td style="padding: 10px;">${b.room_id}</td>
+                            <td style="padding: 10px;">${b.room_name}</td>
+                            <td style="padding: 10px;">${b.check_in}</td>
+                            <td style="padding: 10px;">${b.check_out}</td>
+                            <td style="padding: 10px;">${b.price} SEK</td>
+                            <td style="padding: 10px; color: gray;">${uiText.completedStatus}</td>
                         `;
                         pastRows.appendChild(tr);
                     }
@@ -200,7 +212,9 @@ function removeBooking(bookingId, roomId) {
     .then(res => res.json())
     .then(data => {
         alert(data.message);
-        getBookings(savedEmail);
+        if (data.status === "success") {
+            getBookings(savedEmail); // Uppdatera listan
+        }
     })
     .catch(() => {
         alert(uiText.cancelError);

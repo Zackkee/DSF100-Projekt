@@ -42,6 +42,7 @@
     </main>
 
     <script>
+        const hasRooms = {{ 'true' if session.get('basket') else 'false' }};
         function changeLanguage(lang) {
             fetch(`/set_language/${lang}`)
                 .then(response => response.json())
@@ -68,17 +69,21 @@
             .then(res => res.json())
             .then(result => {
                 const msgEl = document.getElementById("msg");
-                msgEl.style.display = "block"; // Visa rutan
+                msgEl.style.display = "block";
 
                 if (result.status === "success") {
                     msgEl.innerText = "✅ Inloggningen lyckades!";
                     msgEl.className = "success";
 
-                    // Skicka kunden till startsidan efter en liten stund
                     setTimeout(() => {
-                        window.location.href = "/";
+                        if (hasRooms == true) {
+                            window.location.href = "/booking.html";
+                        } else {
+                            window.location.href = "/";
+                        }
                     }, 1500);
-                } else {
+                }
+                else {
                     // Om lösenordet var fel, visa felmeddelandet från Python
                     msgEl.innerText = "❌ " + (result.message || "Ett fel uppstod.");
                     msgEl.className = "error";
