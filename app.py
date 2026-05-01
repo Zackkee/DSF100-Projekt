@@ -106,6 +106,7 @@ translations = {
         'booking_confirmed_message': 'Bokningen är bekräftad! Tack för din bokning.',
         'booking_failed_message': 'Bokningen misslyckades',
         'technical_error': 'Ett tekniskt fel uppstod.',
+        'emptyCart': 'Varukorgen är tom.',
 
         # My bookings page
         'show_bookings': 'Visa bokningar',
@@ -221,6 +222,7 @@ translations = {
         'booking_confirmed_message': 'Your booking is confirmed! Thank you for your reservation.',
         'booking_failed_message': 'Booking failed',
         'technical_error': 'A technical error occurred.',
+        'empty_cart': 'The cart is empty.',
 
         # My bookings page
         'show_bookings': 'Show bookings',
@@ -400,6 +402,10 @@ def select_room():
 
     if 'basket' not in session:
         session['basket'] = []
+    
+    if len(session['basket']) >= 5:
+        return jsonify({'status': 'error', 'message': 'Du kan inte boka fler än 5 rum samtidigt.'})
+
 
     session['basket'].append(room_id)
     session.modified = True
@@ -471,7 +477,8 @@ def get_bookings():
             rum.room_name, 
             bokningar.check_in, 
             bokningar.check_out,
-            rum.price
+            rum.price,
+            rum.image
         FROM bokningar
         JOIN rum ON bokningar.room_id = rum.id
         JOIN kunder ON bokningar.customer_id = kunder.kund_id
@@ -491,7 +498,8 @@ def get_bookings():
             'room_name': b[2],
             'check_in': b[3].strftime('%Y-%m-%d'),
             'check_out': b[4].strftime('%Y-%m-%d'),
-            'price': float(b[5])
+            'price': float(b[5]),
+            'image': b[6]
         })
 
     return jsonify({'status': 'success', 'bookings': bookings_list})
@@ -616,6 +624,8 @@ def get_booking_summary():
             'status': 'success',
             'rooms': rooms_list,
             'total_price': total_price,
+            'check_in': check_in_str,
+            'check_out': check_out_str
         })
 
     except Exception as e:

@@ -52,8 +52,7 @@
         <p id="price"></p>
 
         <form id="booking-form">
-            <label>{{ t.customer_id }}</label>
-            <input type="text" id="customer_id" readonly>
+            <input type="hidden" id="customer_id" readonly>
 
             <button type="submit">{{ t.confirm_booking }}</button>
         </form>
@@ -76,7 +75,8 @@
         bookingInfoError: "{{ t.booking_info_error }}",
         bookingConfirmed: "{{ t.booking_confirmed_message }}",
         bookingFailed: "{{ t.booking_failed_message }}",
-        technicalError: "{{ t.technical_error }}"
+        technicalError: "{{ t.technical_error }}",
+        emptyCart: "{{ t.empty_cart }}"
     };
 
     function changeLanguage(lang) {
@@ -107,11 +107,11 @@
             if (data.status === 'success') {
                 list.innerHTML = ""; 
                 
-                if (data.rooms.length === 0) {
-                    list.innerHTML = "<p>Varukorgen är tom.</p>";
-                    priceEl.innerText = "0 SEK";
-                    return;
-                }
+            if (data.rooms.length === 0) {
+                list.innerHTML = `<p>${uiText.emptyCart}</p>`;
+                priceEl.innerText = "0 SEK";
+                return;
+}
 
                 data.rooms.forEach(room => {
                     list.innerHTML += `
@@ -120,7 +120,8 @@
                                 <img src="/static/${room.image}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;">
                                 <div>
                                     <b>${room.name}</b><br>
-                                    <span>${room.price} SEK</span>
+                                    <span>${room.price} SEK ${uiText.perNight}</span>
+                                    
                                 </div>
                             </div>
                             <button type="button" onclick="removeRoom('${room.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
@@ -129,9 +130,10 @@
                         </div>
                     `;
                 });
-                priceEl.innerText = "Totalpris: " + data.total_price + " SEK";
+                priceEl.innerHTML = "Totalpris: " + data.total_price + " SEK" + "<br>" + "<br>" +
+                "Inchekningsdatum: " + data.check_in + "<br>" + "<br>" + "Utcheckningsdatum: " + data.check_out;
             } else {
-                list.innerHTML = `<p>${data.message || "Inga rum valda."}</p>`;
+                list.innerHTML = `<p>${data.message || uiText.emptyCart}</p>`;
                 priceEl.innerText = "0 SEK";
             }
         })
