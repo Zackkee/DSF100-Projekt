@@ -213,24 +213,46 @@ form button:hover {
     }
 
     form label {
-        font-size: 18px;
+        font-size: 20px;
         margin-bottom: 6px;
+    }
+
+    form input,
+    form select,
+    form button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     form input,
     form select {
         height: 40px;
-        padding: 6px 10px;
+        padding: 0 12px;
         font-size: 15px;
+        line-height: 40px;
         border-radius: 9px;
         margin-bottom: 14px;
     }
 
-    input[type="date"],
+    input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 40px;
+        padding: 0 12px;
+        font-size: 15px;
+        line-height: 40px;
+        border-radius: 9px;
+    }
+
     input[type="number"] {
         appearance: none;
         -webkit-appearance: none;
         height: 40px;
+        padding: 0 12px;
+        font-size: 15px;
+        line-height: 40px;
+        border-radius: 9px;
     }
 
     form button {
