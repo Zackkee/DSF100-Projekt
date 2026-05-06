@@ -196,71 +196,50 @@ form button:hover {
     }
 
     h1 {
-        font-size: 36px;
+        font-size: 34px;
         line-height: 1.2;
     }
 
     p {
-        font-size: 18px;
-        line-height: 1.6;
+        font-size: 17px;
+        line-height: 1.5;
     }
 
     form {
-        width: 100%;
-        max-width: 100%;
-        padding: 18px;
+        width: 88%;
+        max-width: 360px;
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    form label {
+        font-size: 18px;
+        margin-bottom: 6px;
     }
 
     form input,
-    form select,
-    form button {
-        width: 100%;
-        max-width: 100%;
+    form select {
+        height: 40px;
+        padding: 6px 10px;
+        font-size: 15px;
+        border-radius: 9px;
+        margin-bottom: 14px;
     }
 
     input[type="date"],
     input[type="number"] {
         appearance: none;
         -webkit-appearance: none;
-        height: 55px;
+        height: 40px;
     }
-    form label {
 
-    font-size: 22px;
-
-    margin-bottom: 8px;
-
-}
-
-form input,
-
-form select {
-
-    height: 48px;
-
-    padding: 8px 12px;
-
-    font-size: 16px;
-
-    border-radius: 10px;
-
-    margin-bottom: 18px;
-
-}
-
-form button {
-
-    height: 52px;
-
-    padding: 10px 12px;
-
-    font-size: 18px;
-
-    border-radius: 14px;
-
-    margin-bottom: 0;
-
-}
+    form button {
+        height: 44px;
+        padding: 8px 10px;
+        font-size: 16px;
+        border-radius: 14px;
+        margin-bottom: 0;
+    }
 
     .rooms-wrapper {
         grid-template-columns: 1fr;
