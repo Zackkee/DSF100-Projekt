@@ -4,120 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nordic Haven Hotel | Start</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}?v=20">
 </head>
 
 <body class="index-background">
-    <header>
-        <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
-            <div>
-                {% if session.get('customer_name') %}
-                    <span style="color: rgb(0, 0, 0); margin-right: 15px;">
-                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
-                    </span>
-                    <a id="bookings-link" href="/mina_bokningar.html?email={{ session.get('customer_email') }}">{{ t.my_bookings }}</a>
-                    <a href="/logout">{{ t.logout }}</a>
-                {% else %}
-                    <a href="/kunder.html">{{ t.create_account }}</a>
-                    <a href="/login.html">{{ t.login }}</a>
-                {% endif %}
-            </div>
 
-            <div>
-                <button onclick="changeLanguage('sv')" style="
-                    padding: 8px 14px;
-                    margin-right: 8px;
-                    border: none;
-                    border-radius: 20px;
-                    cursor: pointer;">
-                    Svenska
-                </button>
+<header>
 
-                <button onclick="changeLanguage('en')" style="
-                    padding: 8px 14px;
-                    border: none;
-                    border-radius: 20px;
-                    cursor: pointer;">
-                    English
-                </button>
-            </div>
-        </nav>
-    </header>
+    <nav class="main-nav">
 
-    <main class="container">
+        <div class="nav-left">
 
-        <section>
-            <h1>{{ t.welcome_title }}</h1>
+            {% if session.get('customer_name') %}
 
-            <p style="
-                text-align: center;
-                max-width: 950px;
-                margin: 0 auto 30px auto;
-                line-height: 1.8;
-                font-size: 20px;
-            ">
-                {{ t.welcome_text_1 }}
-                <strong>Nordic Haven Hotel</strong>
-                {{ t.welcome_text_2 }}
-            </p>
-        </section>
+                <span style="color:black;">
+                    {{ t.logged_in_as }}
+                    <b>{{ session.get('customer_name') }}</b>
+                </span>
 
-        <section>
-            <h1>{{ t.find_room_title }}</h1>
+                <a id="bookings-link"
+                   href="/mina_bokningar.html?email={{ session.get('customer_email') }}">
+                    {{ t.my_bookings }}
+                </a>
 
-            <form id="search-rooms" action="/rooms.html" method="GET">
-                
-                <label for="check_in_date">{{ t.check_in }}</label>
-                <input type="date" id="check_in_date" name="check_in_date" min="{{ today }}" required>
+                <a href="/logout">
+                    {{ t.logout }}
+                </a>
 
-                <label for="check_out_date">{{ t.check_out }}</label>
-                <input type="date" id="check_out_date" name="check_out_date" min="{{ today }}" required>
+            {% else %}
 
-                <label for="antal_personer">{{ t.guests }}</label>
-                <input type="number" id="antal_personer" name="antal_personer" min="1" required>
+                <a href="/kunder.html">
+                    {{ t.create_account }}
+                </a>
 
-                <button type="submit">{{ t.show_available_rooms }}</button>
-            </form>
-        </section>
+                <a href="/login.html">
+                    {{ t.login }}
+                </a>
 
-        <section>
-            <h2>{{ t.about_hotel_title }}</h2>
-            <p>{{ t.about_hotel_text_1 }}</p>
-            <p>{{ t.about_hotel_text_2 }}</p>
-        </section>
+            {% endif %}
 
-    </main>
+        </div>
 
-    <footer>
-        <p style="text-align:center; padding: 20px 0;">
-            &copy; 2026 Nordic Haven Hotel. {{ t.footer_rights }}
+        <div class="nav-right">
+
+            <button onclick="changeLanguage('sv')">
+                Svenska
+            </button>
+
+            <button onclick="changeLanguage('en')">
+                English
+            </button>
+
+        </div>
+
+    </nav>
+
+</header>
+
+<main class="container">
+
+    <section>
+
+        <h1>{{ t.welcome_title }}</h1>
+
+        <p style="
+            text-align:center;
+            max-width:950px;
+            margin:0 auto 30px auto;
+            line-height:1.8;
+            font-size:20px;
+        ">
+            {{ t.welcome_text_1 }}
+            <strong>Nordic Haven Hotel</strong>
+            {{ t.welcome_text_2 }}
         </p>
-    </footer>
 
-    <script>
-        function changeLanguage(lang) {
-            fetch(`/set_language/${lang}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        location.reload();
-                    }
-                })
-                .catch(() => {
-                    console.error("Language change failed");
-                });
-        }
+    </section>
 
-        document.getElementById("search-rooms").addEventListener("submit", function(e) {
-            const checkIn = document.getElementById("check_in_date").value;
-            const checkOut = document.getElementById("check_out_date").value;
-            
-            if (checkIn >= checkOut) {
-                e.preventDefault();
-                alert("Avresedatum måste vara efter ankomstdatum.");
+    <section>
+
+        <h1>{{ t.find_room_title }}</h1>
+
+        <form id="search-rooms"
+              action="/rooms.html"
+              method="GET">
+
+            <label for="check_in_date">
+                {{ t.check_in }}
+            </label>
+
+            <input type="date"
+                   id="check_in_date"
+                   name="check_in_date"
+                   min="{{ today }}"
+                   required>
+
+            <label for="check_out_date">
+                {{ t.check_out }}
+            </label>
+
+            <input type="date"
+                   id="check_out_date"
+                   name="check_out_date"
+                   min="{{ today }}"
+                   required>
+
+            <label for="antal_personer">
+                {{ t.guests }}
+            </label>
+
+            <input type="number"
+                   id="antal_personer"
+                   name="antal_personer"
+                   min="1"
+                   required>
+
+            <button type="submit">
+                {{ t.show_available_rooms }}
+            </button>
+
+        </form>
+
+    </section>
+
+    <section>
+
+        <h2>{{ t.about_hotel_title }}</h2>
+
+        <p>{{ t.about_hotel_text_1 }}</p>
+
+        <p>{{ t.about_hotel_text_2 }}</p>
+
+    </section>
+
+</main>
+
+<footer>
+
+    <p style="text-align:center; padding:20px 0;">
+
+        &copy; 2026 Nordic Haven Hotel.
+        {{ t.footer_rights }}
+
+    </p>
+
+</footer>
+
+<script>
+
+function changeLanguage(lang) {
+
+    fetch(`/set_language/${lang}`)
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.status === "success") {
+                location.reload();
             }
+
+        })
+
+        .catch(() => {
+            console.error("Language change failed");
         });
-    </script>
+}
+
+document.getElementById("search-rooms")
+
+    .addEventListener("submit", function(e) {
+
+        const checkIn =
+            document.getElementById("check_in_date").value;
+
+        const checkOut =
+            document.getElementById("check_out_date").value;
+
+        if (checkIn >= checkOut) {
+
+            e.preventDefault();
+
+            alert(
+                "Avresedatum måste vara efter ankomstdatum."
+            );
+        }
+});
+
+</script>
 
 </body>
 </html>
