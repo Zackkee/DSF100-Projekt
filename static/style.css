@@ -272,3 +272,18 @@ form button:hover {
         height: 300px;
     }
 }
+/* ===== Flatpickr Fix ===== */
+
+.flatpickr-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    height: 40px !important;
+    padding: 0 12px !important;
+
+    font-size: 15px !important;
+    line-height: 40px !important;
+
+    border-radius: 9px !important;
+}
