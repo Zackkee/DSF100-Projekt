@@ -6,7 +6,11 @@
     <title>Nordic Haven Hotel | Start</title>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}?v=20">
+          href="{{ url_for('static', filename='style.css') }}?v=21">
+
+    <!-- Flatpickr Calendar CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body class="index-background">
@@ -95,20 +99,20 @@
                 {{ t.check_in }}
             </label>
 
-            <input type="date"
+            <input type="text"
                    id="check_in_date"
                    name="check_in_date"
-                   min="{{ today }}"
+                   placeholder="YYYY-MM-DD"
                    required>
 
             <label for="check_out_date">
                 {{ t.check_out }}
             </label>
 
-            <input type="date"
+            <input type="text"
                    id="check_out_date"
                    name="check_out_date"
-                   min="{{ today }}"
+                   placeholder="YYYY-MM-DD"
                    required>
 
             <label for="antal_personer">
@@ -152,6 +156,9 @@
 
 </footer>
 
+<!-- Flatpickr Calendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
 
 function changeLanguage(lang) {
@@ -172,6 +179,25 @@ function changeLanguage(lang) {
             console.error("Language change failed");
         });
 }
+
+const checkInPicker = flatpickr("#check_in_date", {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    disableMobile: true,
+    onChange: function(selectedDates, dateStr) {
+        checkOutPicker.set("minDate", dateStr);
+
+        if (document.getElementById("check_out_date").value <= dateStr) {
+            document.getElementById("check_out_date").value = "";
+        }
+    }
+});
+
+const checkOutPicker = flatpickr("#check_out_date", {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    disableMobile: true
+});
 
 document.getElementById("search-rooms")
 
