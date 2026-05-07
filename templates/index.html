@@ -6,7 +6,7 @@
     <title>Nordic Haven Hotel | Start</title>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}?v=30">
+          href="{{ url_for('static', filename='style.css') }}?v=60">
 
     <!-- Flatpickr Calendar CSS -->
     <link rel="stylesheet"
@@ -102,7 +102,9 @@
             <input type="text"
                    id="check_in_date"
                    name="check_in_date"
+                   class="date-field"
                    placeholder="YYYY-MM-DD"
+                   readonly
                    required>
 
             <label for="check_out_date">
@@ -112,7 +114,9 @@
             <input type="text"
                    id="check_out_date"
                    name="check_out_date"
+                   class="date-field"
                    placeholder="YYYY-MM-DD"
+                   readonly
                    required>
 
             <label for="antal_personer">
@@ -148,10 +152,8 @@
 <footer>
 
     <p style="text-align:center; padding:20px 0;">
-
         &copy; 2026 Nordic Haven Hotel.
         {{ t.footer_rights }}
-
     </p>
 
 </footer>
@@ -160,65 +162,57 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-
 function changeLanguage(lang) {
-
     fetch(`/set_language/${lang}`)
-
         .then(response => response.json())
-
         .then(data => {
-
             if (data.status === "success") {
                 location.reload();
             }
-
         })
-
         .catch(() => {
             console.error("Language change failed");
         });
 }
 
+let checkOutPicker;
+
 const checkInPicker = flatpickr("#check_in_date", {
     dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "Y-m-d",
     minDate: "today",
     disableMobile: true,
+    allowInput: false,
     onChange: function(selectedDates, dateStr) {
         checkOutPicker.set("minDate", dateStr);
 
-        if (document.getElementById("check_out_date").value <= dateStr) {
-            document.getElementById("check_out_date").value = "";
+        const checkOutValue = document.getElementById("check_out_date").value;
+
+        if (checkOutValue && checkOutValue <= dateStr) {
+            checkOutPicker.clear();
         }
     }
 });
 
-const checkOutPicker = flatpickr("#check_out_date", {
+checkOutPicker = flatpickr("#check_out_date", {
     dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "Y-m-d",
     minDate: "today",
-    disableMobile: true
+    disableMobile: true,
+    allowInput: false
 });
 
-document.getElementById("search-rooms")
+document.getElementById("search-rooms").addEventListener("submit", function(e) {
+    const checkIn = document.getElementById("check_in_date").value;
+    const checkOut = document.getElementById("check_out_date").value;
 
-    .addEventListener("submit", function(e) {
-
-        const checkIn =
-            document.getElementById("check_in_date").value;
-
-        const checkOut =
-            document.getElementById("check_out_date").value;
-
-        if (checkIn >= checkOut) {
-
-            e.preventDefault();
-
-            alert(
-                "Avresedatum måste vara efter ankomstdatum."
-            );
-        }
+    if (checkIn >= checkOut) {
+        e.preventDefault();
+        alert("Avresedatum måste vara efter ankomstdatum.");
+    }
 });
-
 </script>
 
 </body>
