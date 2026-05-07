@@ -164,7 +164,7 @@ translations = {
         # Navigation
         'home': 'Home',
         'create_account': 'Create account',
-        'my_bookings': 'My bookings',
+        'my_bookings': 'Bookings',
         'back_to_home': '← Back to home',
         'login': 'Log in',
         'logout': 'Log out',
