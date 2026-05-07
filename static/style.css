@@ -409,3 +409,15 @@ body.booking-page h1 {
 .booking-info-box p {
     margin: 12px 0;
 }
+/* ===== Booking room card ===== */
+
+#rooms > div {
+    background: white;
+    border-radius: 22px;
+
+    padding: 20px;
+
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+
+    margin-bottom: 25px;
+}
