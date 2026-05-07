@@ -350,3 +350,12 @@ body.booking-page h1 {
     border-radius: 18px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.18);
 }
+/* ===== Light pages title fix ===== */
+
+.light-page h1,
+.light-page h2 {
+    color: #0f172a !important;
+
+    text-shadow:
+        0 2px 6px rgba(0,0,0,0.08) !important;
+}
