@@ -360,3 +360,25 @@ body.booking-page h1 {
         0 3px 8px rgba(0,0,0,0.15),
         0 6px 18px rgba(0,0,0,0.08) !important;
 }
+/* ===== Room cards design ===== */
+
+.room-overlay .price {
+    color: #2dd4bf !important;
+    font-weight: bold;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.6);
+}
+
+.room-overlay button {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: none;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.room-overlay button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+}
