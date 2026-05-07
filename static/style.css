@@ -354,8 +354,9 @@ body.booking-page h1 {
 
 .light-page h1,
 .light-page h2 {
-    color: #0f172a !important;
+    color: #0ea5e9 !important;
 
     text-shadow:
-        0 2px 6px rgba(0,0,0,0.08) !important;
+        0 3px 8px rgba(0,0,0,0.15),
+        0 6px 18px rgba(0,0,0,0.08) !important;
 }
