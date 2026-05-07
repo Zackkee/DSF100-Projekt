@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rooms – Nordic Haven Hotel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}?v=110">
 
     <style>
         .toast {
@@ -61,20 +63,41 @@
 <body class="rooms-page">
 
 <nav style="display:flex; justify-content:space-between; align-items:center; padding: 15px 30px;">
-    <div>
-                {% if session.get('customer_name') %}
-                    <span style="color: rgb(0, 0, 0); margin-right: 15px;">
-                        {{ t.logged_in_as }} <b>{{ session.get('customer_name') }}</b>
-                    </span>
-                    <a id="bookings-link" href="/mina_bokningar.html?email={{ session.get('customer_email') }}">{{ t.my_bookings }}</a>
-                    <a href="/logout">{{ t.logout }}</a>
-                {% else %}
-                    <a href="/kunder.html">{{ t.create_account }}</a>
-                    <a href="/login.html">{{ t.login }}</a>
-                {% endif %}
-            </div>
 
     <div>
+
+        {% if session.get('customer_name') %}
+
+            <span style="color: rgb(0, 0, 0); margin-right: 15px;">
+                {{ t.logged_in_as }}
+                <b>{{ session.get('customer_name') }}</b>
+            </span>
+
+            <a id="bookings-link"
+               href="/mina_bokningar.html?email={{ session.get('customer_email') }}">
+                {{ t.my_bookings }}
+            </a>
+
+            <a href="/logout">
+                {{ t.logout }}
+            </a>
+
+        {% else %}
+
+            <a href="/kunder.html">
+                {{ t.create_account }}
+            </a>
+
+            <a href="/login.html">
+                {{ t.login }}
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <div>
+
         <button onclick="changeLanguage('sv')" style="
             padding: 8px 14px;
             margin-right: 8px;
@@ -91,7 +114,9 @@
             cursor: pointer;">
             English
         </button>
+
     </div>
+
 </nav>
 
 <header class="rooms-hero">
@@ -99,25 +124,59 @@
 </header>
 
 <main class="rooms-wrapper">
+
     {% for room in rooms %}
+
     <section class="room-showcase">
-        <img src="{{ url_for('static', filename=room[5]) }}" alt="{{ room[1] }}">
+
+        <img src="{{ url_for('static', filename=room[5]) }}"
+             alt="{{ room[1] }}">
+
         <div class="room-overlay">
+
             <h2>{{ room[1] }}</h2>
+
             <p>{{ room[2] }}</p>
-            <span class="price">{{ room[4] }} SEK / natt</span>
-            <button onclick="addRoom('{{ room[0] }}')">{{ t.add_room }}</button>
+
+            <span class="price">
+                {{ room[4] }} SEK / natt
+            </span>
+
+            <button onclick="addRoom('{{ room[0] }}')">
+                {{ t.add_room }}
+            </button>
+
         </div>
+
     </section>
+
     {% else %}
-    <div style="text-align: center; width: 100%; color: white; margin-top: 50px;">
+
+    <div style="
+        text-align: center;
+        width: 100%;
+        color: white;
+        margin-top: 50px;
+    ">
+
         <h2>{{ t.sorry }}</h2>
+
         <p>{{ t.no_rooms }}</p>
+
     </div>
+
     {% endfor %}
+
 </main>
 
-<div style="text-align:center; margin: 40px 0;">
+<!-- ===== BOOK NOW ===== -->
+
+<div id="book-now-section" style="
+    text-align:center;
+    margin: 40px 0;
+    display: none;
+">
+
     <button onclick="goToRegister()" style="
         padding: 15px 40px;
         font-size: 18px;
@@ -127,119 +186,237 @@
         background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
         color: white;
         cursor: pointer;">
+
         {{ t.book_now }}
+
     </button>
+
 </div>
 
+<!-- ===== TOAST ===== -->
+
 <div id="toast" class="toast">
+
     <span id="toast-icon"></span>
+
     <span id="toast-text"></span>
+
     <div class="toast-progress"></div>
+
 </div>
 
 <script>
 
-
 const pageTexts = {
+
     roomAdded: "{{ t.room_added }}",
+
     errorOccurred: "{{ t.error_occurred }}",
+
     cannotAddRoom: "{{ t.cannot_add_room }}",
+
     chooseRoom: "{{ t.choose_room }}",
+
     mustBeLoggedIn: "{{ t.must_be_logged_in }}"
+
 };
 
-const isLoggedIn = {{ 'true' if session.get('customer_id') else 'false' }};
+const isLoggedIn =
+{{ 'true' if session.get('customer_id') else 'false' }};
 
 function changeLanguage(lang) {
+
     fetch(`/set_language/${lang}`)
+
         .then(response => response.json())
+
         .then(data => {
+
             if (data.status === "success") {
+
                 location.reload();
+
             }
+
         })
+
         .catch(() => {
+
             console.error("Language change failed");
+
         });
 }
 
 function showToast(message, type = "success") {
-    const toast = document.getElementById("toast");
-    const text = document.getElementById("toast-text");
-    const icon = document.getElementById("toast-icon");
+
+    const toast =
+        document.getElementById("toast");
+
+    const text =
+        document.getElementById("toast-text");
+
+    const icon =
+        document.getElementById("toast-icon");
 
     text.innerText = message;
+
     toast.className = "toast";
 
     if (type === "success") {
+
         toast.classList.add("toast-success");
+
         icon.innerText = "✅";
+
         playSound();
-    } else if (type === "error") {
+
+    }
+
+    else if (type === "error") {
+
         toast.classList.add("toast-error");
+
         icon.innerText = "❌";
-    } else {
+
+    }
+
+    else {
+
         toast.classList.add("toast-warning");
+
         icon.innerText = "⚠️";
+
     }
 
     toast.classList.add("show");
 
-    const progress = toast.querySelector(".toast-progress");
+    const progress =
+        toast.querySelector(".toast-progress");
+
     progress.style.animation = "none";
+
     progress.offsetHeight;
+
     progress.style.animation = null;
 
     setTimeout(() => {
+
         toast.classList.remove("show");
+
     }, 3000);
 }
 
 function playSound() {
-    const audio = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+
+    const audio =
+        new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+
     audio.volume = 0.3;
+
     audio.play();
 }
 
+/* ===== ADD ROOM ===== */
+
 function addRoom(roomId) {
+
     fetch("/api/selectRoom", {
+
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ room_id: roomId })
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            room_id: roomId
+        })
+
     })
+
     .then(res => res.json())
+
     .then(data => {
+
         if (data.status === "success") {
+
             showToast(pageTexts.roomAdded, "success");
-        } else {
-            showToast(data.message || pageTexts.errorOccurred, "error");
+
+            document.getElementById(
+                "book-now-section"
+            ).style.display = "block";
+
         }
+
+        else {
+
+            showToast(
+                data.message || pageTexts.errorOccurred,
+                "error"
+            );
+
+        }
+
     })
+
     .catch(() => {
-        showToast(pageTexts.cannotAddRoom, "error");
+
+        showToast(
+            pageTexts.cannotAddRoom,
+            "error"
+        );
+
     });
 }
 
+/* ===== GO TO REGISTER ===== */
+
 function goToRegister() {
+
     fetch("/api/hasSelectedRooms")
+
         .then(res => res.json())
+
         .then(data => {
+
             if (data.hasRooms) {
+
                 if (!isLoggedIn) {
-                    showToast(pageTexts.mustBeLoggedIn, "warning");
+
+                    showToast(
+                        pageTexts.mustBeLoggedIn,
+                        "warning"
+                    );
 
                     setTimeout(() => {
-                        window.location.href = "/login.html";
+
+                        window.location.href =
+                            "/login.html";
+
                     }, 2500);
-                } 
-                else {
-                    window.location.href = "/booking.html";
                 }
-            } else {
-                showToast(pageTexts.chooseRoom, "warning");
+
+                else {
+
+                    window.location.href =
+                        "/booking.html";
+
+                }
+
             }
+
+            else {
+
+                showToast(
+                    pageTexts.chooseRoom,
+                    "warning"
+                );
+
+            }
+
         });
 }
+
 </script>
 
 </body>
