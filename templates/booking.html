@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking – Nordic Haven Hotel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=130">
 </head>
 
 <body class="light-page">
@@ -49,7 +49,8 @@
         <h1>{{ t.confirm_booking }}</h1>
 
         <div id="rooms"></div>
-        <p id="price"></p>
+
+        <div id="price" class="booking-info-box"></div>
 
         <form id="booking-form">
             <input type="hidden" id="customer_id" readonly>
@@ -92,26 +93,24 @@
             });
     }
 
-
     const customerId = "{{ session.get('customer_id', '') }}";
     document.getElementById("customer_id").value = customerId;
-
 
     function loadSummary() {
         fetch('/api/getBookingSummary')
         .then(res => res.json())
         .then(data => {
-            const list = document.getElementById('rooms'); 
-            const priceEl = document.getElementById('price'); 
-            
+            const list = document.getElementById('rooms');
+            const priceEl = document.getElementById('price');
+
             if (data.status === 'success') {
-                list.innerHTML = ""; 
-                
-            if (data.rooms.length === 0) {
-                list.innerHTML = `<p>${uiText.emptyCart}</p>`;
-                priceEl.innerText = "0 SEK";
-                return;
-}
+                list.innerHTML = "";
+
+                if (data.rooms.length === 0) {
+                    list.innerHTML = `<p>${uiText.emptyCart}</p>`;
+                    priceEl.innerHTML = `<p>0 SEK</p>`;
+                    return;
+                }
 
                 data.rooms.forEach(room => {
                     list.innerHTML += `
@@ -121,7 +120,6 @@
                                 <div>
                                     <b>${room.name}</b><br>
                                     <span>${room.price} SEK ${uiText.perNight}</span>
-                                    
                                 </div>
                             </div>
                             <button type="button" onclick="removeRoom('${room.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
@@ -130,11 +128,15 @@
                         </div>
                     `;
                 });
-                priceEl.innerHTML = "Totalpris: " + data.total_price + " SEK" + "<br>" + "<br>" +
-                "Inchekningsdatum: " + data.check_in + "<br>" + "<br>" + "Utcheckningsdatum: " + data.check_out;
+
+                priceEl.innerHTML = `
+                    <p>Totalpris: ${data.total_price} SEK</p>
+                    <p>Incheckningsdatum: ${data.check_in}</p>
+                    <p>Utcheckningsdatum: ${data.check_out}</p>
+                `;
             } else {
                 list.innerHTML = `<p>${data.message || uiText.emptyCart}</p>`;
-                priceEl.innerText = "0 SEK";
+                priceEl.innerHTML = `<p>0 SEK</p>`;
             }
         })
         .catch(err => {
@@ -142,7 +144,6 @@
             document.getElementById('rooms').innerHTML = "<p>Kunde inte hämta bokningsinformationen.</p>";
         });
     }
-
 
     function removeRoom(roomId) {
         fetch('/api/removeFromBasket', {
@@ -153,17 +154,15 @@
         .then(res => res.json())
         .then(result => {
             if (result.status === 'success') {
-                location.reload(); 
+                location.reload();
             } else {
                 alert("Kunde inte ta bort rummet.");
             }
         });
     }
 
-
     document.getElementById("booking-form").addEventListener("submit", e => {
         e.preventDefault();
-
 
         const currentCustomerId = document.getElementById("customer_id").value;
 
@@ -202,7 +201,6 @@
     });
 
     loadSummary();
-
     </script>
 
 </body>
