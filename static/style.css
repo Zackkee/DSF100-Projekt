@@ -65,18 +65,11 @@ body {
 }
 
 .nav-right button {
-    width: 130px;
-    height: 42px;
     padding: 8px 14px;
     border: none;
-    border-radius: 22px;
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* ===== Headings ===== */
@@ -186,49 +179,20 @@ form button:hover {
     }
 
     .main-nav {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        gap: 10px;
+        flex-direction: column;
+        gap: 15px;
         text-align: center;
     }
 
-    .nav-left {
-        width: 58%;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-    }
-
+    .nav-left,
     .nav-right {
-        width: 42%;
-        flex-direction: column;
-        align-items: flex-end;
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
-        padding-right: 8px;
-    }
-
-    .nav-left a {
-        margin: 0;
-        font-size: 20px;
-        line-height: 1.2;
     }
 
     .nav-left span {
         width: 100%;
-        margin-bottom: 4px;
-        font-size: 15px;
-    }
-
-    .nav-right button {
-        width: 130px;
-        height: 46px;
-        margin: 0;
-        font-size: 16px;
-        border-radius: 24px;
+        margin-bottom: 10px;
     }
 
     h1 {
@@ -271,7 +235,16 @@ form button:hover {
         margin-bottom: 14px;
     }
 
-    input[type="date"],
+    input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 40px;
+        padding: 0 12px;
+        font-size: 15px;
+        line-height: 40px;
+        border-radius: 9px;
+    }
+
     input[type="number"] {
         appearance: none;
         -webkit-appearance: none;
@@ -299,8 +272,8 @@ form button:hover {
         height: 300px;
     }
 }
-
 /* ===== Flatpickr Fix ===== */
+
 .flatpickr-input {
     width: 100% !important;
     max-width: 100% !important;
@@ -313,18 +286,4 @@ form button:hover {
     line-height: 40px !important;
 
     border-radius: 9px !important;
-}
-.date-field,
-.flatpickr-input,
-.flatpickr-mobile,
-input.flatpickr-input,
-input.flatpickr-input[readonly] {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 40px !important;
-    padding: 0 12px !important;
-    font-size: 15px !important;
-    line-height: 40px !important;
-    border-radius: 9px !important;
-    box-sizing: border-box !important;
 }
