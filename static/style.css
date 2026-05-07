@@ -65,11 +65,18 @@ body {
 }
 
 .nav-right button {
+    width: 130px;
+    height: 42px;
     padding: 8px 14px;
     border: none;
-    border-radius: 20px;
+    border-radius: 22px;
     cursor: pointer;
     font-weight: 600;
+    font-size: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===== Headings ===== */
@@ -179,20 +186,49 @@ form button:hover {
     }
 
     .main-nav {
-        flex-direction: column;
-        gap: 15px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        gap: 10px;
         text-align: center;
     }
 
-    .nav-left,
-    .nav-right {
-        flex-wrap: wrap;
+    .nav-left {
+        width: 58%;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+        gap: 6px;
+    }
+
+    .nav-right {
+        width: 42%;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 8px;
+        padding-right: 8px;
+    }
+
+    .nav-left a {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
     }
 
     .nav-left span {
         width: 100%;
-        margin-bottom: 10px;
+        margin-bottom: 4px;
+        font-size: 15px;
+    }
+
+    .nav-right button {
+        width: 130px;
+        height: 46px;
+        margin: 0;
+        font-size: 16px;
+        border-radius: 24px;
     }
 
     h1 {
@@ -235,16 +271,7 @@ form button:hover {
         margin-bottom: 14px;
     }
 
-    input[type="date"] {
-        appearance: none;
-        -webkit-appearance: none;
-        height: 40px;
-        padding: 0 12px;
-        font-size: 15px;
-        line-height: 40px;
-        border-radius: 9px;
-    }
-
+    input[type="date"],
     input[type="number"] {
         appearance: none;
         -webkit-appearance: none;
@@ -272,8 +299,8 @@ form button:hover {
         height: 300px;
     }
 }
-/* ===== Flatpickr Fix ===== */
 
+/* ===== Flatpickr Fix ===== */
 .flatpickr-input {
     width: 100% !important;
     max-width: 100% !important;
