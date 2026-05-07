@@ -382,3 +382,28 @@ body.booking-page h1 {
     transform: translateY(-2px);
     box-shadow: 0 8px 22px rgba(0,0,0,0.25);
 }
+/* ===== Booking info box ===== */
+
+.booking-info-box {
+    max-width: 500px;
+    margin: 0 auto 30px auto;
+    padding: 25px;
+
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+
+    border-radius: 20px;
+
+    text-align: center;
+
+    box-shadow: 0 12px 30px rgba(14,165,233,0.15);
+
+    color: #0f172a;
+
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.9;
+}
+
+.booking-info-box p {
+    margin: 12px 0;
+}
